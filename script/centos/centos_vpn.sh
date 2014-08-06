@@ -1,5 +1,6 @@
 #!/bin/bash
 #hash  declare -A a;a[w]=abc;a[b]=efg
+. pkgs.sh
 . common.sh
 [ $# -lt 2 ] && echo "usage:$0 user pwd" && exit
 
@@ -16,8 +17,9 @@ rm -rf /etc/ppp
 
 arch=`uname -m`
 #[ -e pptpd-1.3.4-2.el6.$arch.rpm ] && wget http://poptop.sourceforge.net/yum/stable/packages/pptpd-1.3.4-2.el6.$arch.rpm
-read -p "download http://sourceforge.net/projects/poptop/files/pptpd/pptpd-1.3.4/pptpd-1.3.4.tar.gz first"
 
+
+inst_pkg $pptpd
 yum -y install  libpcap   tcp_wrappers dkms kernel_ppp_mppe ppp
 
 
@@ -63,8 +65,8 @@ echo "$user pptpd ${pass} *" >> /etc/ppp/chap-secrets
 
 
 service iptables save
-
-chkconfig pptpd on
+chkconfig --add pptpd 
+chkconfig --level 345 pptpd on
 
 service iptables restart
 service pptpd start

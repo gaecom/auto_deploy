@@ -1,8 +1,8 @@
 #!/bin/bash
-
+. pkgs
 . common.sh
 
-inst_pkg http://twemproxy.googlecode.com/files/nutcracker-0.2.4.tar.gz
+inst_pkg $twemcache
 
 
 cat >/etc/init.d/$NAME<<NG1

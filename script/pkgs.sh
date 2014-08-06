@@ -24,3 +24,5 @@ libmcrypt=http://pkgs.repoforge.org/libmcrypt/libmcrypt-2.5.7-1.2.el6.rf.x86_64.
 node=http://nodejs.org/dist/node-latest.tar.gz
 redis=http://download.redis.io/releases/redis-2.6.15.tar.gz
 memcached=http://memcached.org/files/memcached-1.4.20.tar.gz
+twemproxy=http://twemproxy.googlecode.com/files/nutcracker-0.2.4.tar.gz
+pptpd=http://sourceforge.net/projects/poptop/files/pptpd/pptpd-1.3.4/pptpd-1.3.4.tar.gz

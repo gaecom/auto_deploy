@@ -2,30 +2,6 @@
 
 
 
-pkg_download()
-{
-	#usage:iPkg2 pkgurl pkgext(opt:neighor tgz or tar.gz ext) pkgname(opt)
-	installurl=$1
-	installfile=`basename $installurl`
-	ext=$2
-	options=''
-	[ -z "$2" ] && ext="tar.gz"
-
-	[ ! -z "$3" ] && options=$3
-	[ ! -z "$4" ] && installfile=$4
-	[ ! -e $installfile ] && curl -L "$installurl" -o $installfile
-	echo -e "start install $installfile....\n"
-	opt=xvzf
-	if [ "$ext" == "bz2" ];then
-		opt=xvjf
-	fi;
-	if [ "$ext" != "zip" ];then
-	tar $opt $installfile
-	else
-	    unzip $installfile
-	fi;
-
-}
 #start add module here
 set -e -v -x
 #pagespeed is about 95M
@@ -68,11 +44,8 @@ for x in $modules;do
 	module="$module --add-module=$x "
 done
 echo "download modules finsh"
-nginx_url=http://nginx.org/download/nginx-1.4.1.tar.gz
-nginx_file=`basename $nginx_url`
-[ ! -e $nginx_file ] && curl -L $nginx_url -o $nginx_file
-tar xvzf $nginx_file
-dir=${nginx_file%.tar.gz}
+nginx_url=$nginx
+
 prefix=/usr/local/nginx
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DESC="nginx daemon"
@@ -93,7 +66,7 @@ mkdir -p $PROXY_TEMP
 mkdir -p $FCGI_TEMP
 cd $dir
 
-./configure \
+inst_pkg $nginx_url \
 --prefix=$prefix \
 --sbin-path=/usr/bin \
 --conf-path=$CONFIGFILE \
@@ -121,7 +94,6 @@ cd $dir
 --with-http_dav_module \
 $module
 
-make && sudo make install
 #cp ../config/nginx.conf /etc/nginx/$NAME.conf
 #cp ../config/fcgi.conf /etc/nginx/fcgi.conf
 echo -e "finsh compiling nginx\n"
@@ -263,6 +235,7 @@ NG2
 
 
 sudo chmod a+x /etc/init.d/nginx
-#chkconfig --level 345 nginx on
+chkconfig --add  nginx
+chkconfig --level 345 nginx on
 #update-rc.d -f nginx defaults
 echo -e "install nginx service end\n"
