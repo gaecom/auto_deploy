@@ -1,0 +1,4 @@
+packages/*
+*.tar.gz
+*.tar.bz2
+*.tar.zip

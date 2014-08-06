@@ -1,0 +1,13 @@
+.idea/
+*.tar.gz
+*.tar.bz2
+*.tgz
+docs/
+tools/
+*node_modules
+*bower_components
+*.mode1v3
+*.perspectivev3
+*.pbxuser
+.DS_Store
+build/
