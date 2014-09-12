@@ -4,7 +4,7 @@
 
 set -e -v
 groupadd www
-useradd -r -M -s /sbin/nologin www -g www
+z_add_sysuser www
 geodir=/home/wwwroot/geodata
 prefix=/usr/local/nginx
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -130,6 +130,7 @@ case "$1" in
 esac
 exit 0
 NG2
+echo "AddType text/x-component .htc">>/usr/local/nginx/mime.types
 
 chmod +x /etc/init.d/$NAME
 chkconfig --add $NAME 

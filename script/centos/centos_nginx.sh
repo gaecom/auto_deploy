@@ -29,7 +29,8 @@ cd $ngx_pagespeed_dir
 pkg_download https://dl.google.com/dl/page-speed/psol/1.5.27.3.tar.gz
 cd ..
 fi;
-[ "`id -u www`" == "" ] && useradd -s /sbin/nologin -r -U www
+groupadd www
+[ "`id -u www`" == "" ] && z_add_sysuser www
 module=""
 modules="../$replace_dir $ngx_pagespeed_dir $concat_dir"
 
@@ -44,6 +45,8 @@ for x in $modules;do
 	module="$module --add-module=$x "
 done
 echo "download modules finsh"
+
+echo "AddType text/x-component .htc">>/usr/local/nginx/mime.types
 nginx_url=$nginx
 
 prefix=/usr/local/nginx

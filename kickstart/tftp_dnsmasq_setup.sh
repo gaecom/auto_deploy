@@ -9,7 +9,6 @@ dns_server=${4:-"192.168.10.1"}
 iso_url=$3
 sudo apt-get install dnsmasq atftp
 echo "you must download the correct netboot in according with ubuntu version"
-bootImgUrl=http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/netboot.tar.gz
 
 [ ! -f netboot.tar.gz ] && wget $bootImgUrl
 

@@ -101,6 +101,8 @@ yum -y install screen
 #read -p "install system-config-network-tui,config use text ui,default is y(y/n)(options)" network_tui
 #[ "$devtoolvar" != "n"  -a ! -e "`which system-config-network-tui`" ] &&
 
+inst_pkg $libevent
+
 yum -y install system-config-network-tui wget system-config-firewall-tui
 
 #read -p "install system-config-firewall-tui,config use text ui,default is y(y/n)(options)" firewall_tui

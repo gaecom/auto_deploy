@@ -13,6 +13,7 @@ yum -y install mlocate.x86_64 libssh2-devel.x86_64 openssl.x86_64 libssh2.x86_64
 yum -y install libmcrypt.x86_64 libmcrypt-devel.x86_64  tidy.x86_64 libtidy.x86_64 libtidy-devel.x86_64 readline-devel
 yum -y install bzip2-devel.x86_64 libjpeg.x86_64  libXpm-devel.x86_64  libtool-ltdl-devel.x86_64 libvpx libvpx-devel  t1lib  t1lib-devel icu libicu-devel
 rpm -ivh $libmcryptDev
+
 rpm -ivh $libmcrypt
 ldconfig
 echo -e "finish installing php lib\n"
@@ -82,6 +83,9 @@ log_level = notice
 listen = /tmp/php-cgi.sock
 user = www
 group = www
+listen.user = www
+listen.group = www
+listen.mode = 0660
 pm = dynamic
 pm.max_children = 20
 pm.start_servers = 2
@@ -98,8 +102,11 @@ inst_pkg "$igbinary"
 inst_pkg "$phpMemcached"  --enable-memcached-igbinarynary
 inst_pkg "$yaf" yaf.tgz
 
-echo "zend_extension=xdebug.so">>/etc/php.ini
+inst_pkg "$phpGearman"
 
+
+echo "zend_extension=xdebug.so">>/etc/php.ini
+echo "extension=gearman.so">>/etc/php.ini
 echo "extension=memcached.so">>/etc/php.ini
 echo "extension=redis.so">>/etc/php.ini
 echo "extension=mongo.so">>/etc/php.ini

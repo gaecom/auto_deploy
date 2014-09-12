@@ -15,3 +15,4 @@ tools/
 *.pbxuser
 .DS_Store
 build/
+inst_config.sh
