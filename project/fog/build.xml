@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<project name="fog" basedir="." default="dist">  
+
+    <property file="build.properties" />  
+    <property name="build" location="build" />  
+    <property name="dist" location="dist" />  
+    <property name="commonLocation" location="../../common" />  
+    <property name="lib.dir" location="WebRoot/WEB-INF/lib" />  
+    <property name="web" location="WebRoot" /> 
+ 
+    <target name="init" description="make dir">  
+        <!-- Create the time stamp -->  
+        <tstamp />  
+        <!-- Create the build directory structure used by compile -->  
+        <mkdir dir="${dist}" />  
+   
+    </target>  
+
+    <target name="clean" description="clean up">  
+        <!-- Delete the ${build} and ${dist} directory trees -->  
+        <delete dir="${build}" />  
+        <delete dir="${dist}" /> 
+    </target>  
+  
+    <target name="dist" description="copy common assets" depends="init,clean">  
+
+        <!-- Create the time stamp -->  
+      <copy todir="${build}">  
+            <fileset dir="${commonLocation}">  
+               <include name="common.sh" />  
+               <include name="pkgs.sh" /> 
+            </fileset>  
+            <fileset dir=".">  
+               <include name="**/**" />  
+               <exclude name="*.xml" /> 
+             <exclude name="*.properties" /> 
+            </fileset>  
+        </copy>  
+  <tar destfile="${project.name}.tar">
+  <tarfileset dir="${commonLocation}">
+     <include name="**/**" />  
+   		<exclude name="*.xml" /> 
+    	<exclude name="*.properties" /> 
+  </tarfileset>
+   <tarfileset dir=".">
+  <include name="**/**" />  
+   <exclude name="*.xml" /> 
+    <exclude name="*.properties" /> 
+  </tarfileset>
+</tar>
+ <gzip src="${project.name}.tar" destfile="${project.name}.tar.gz"/>
+   <delete file="${project.name}.tar"/>
+    </target> 
+      <target name="scp" description="copy to remote ">
+      	  <scp file="${project.name}.tar.gz" todir="${ns_box_ssh}"/>
+
+      </target>  
+</project>

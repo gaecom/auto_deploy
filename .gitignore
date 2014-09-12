@@ -4,6 +4,7 @@ packages/*
 *.tar.zip
 .idea/
 *.tar.gz
+*.zip
 *.tar.bz2
 *.tgz
 docs/
@@ -15,4 +16,5 @@ tools/
 *.pbxuser
 .DS_Store
 build/
+config.sh
 inst_config.sh
