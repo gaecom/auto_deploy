@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project name="${project.name}" basedir="." default="dist">  
+
+    <property file="build.properties" />  
+    <property name="build" location="build" />  
+    <property name="dist" location="dist" />  
+    <property name="commonLocation" location="../../common" />  
+    <property name="lib.dir" location="WebRoot/WEB-INF/lib" />  
+    <property name="web" location="WebRoot" /> 
+ 
+    <target name="init" description="make dir">  
+        <!-- Create the time stamp -->  
+        <echo>1.Firewalls: The puppet master server must allow incoming connections on port 8140, and agent nodes must be able to connect to the master on that port.</echo>
+        <echo>2.Name resolution: Every node must have a unique hostname. Forward and reverse DNS must both be configured correctly. (Instructions for configuring DNS are beyond the scope of this guide. If your site lacks DNS, you must write an /etc/hosts file on each node.)</echo>
+        <tstamp />  
+        <!-- Create the build directory structure used by compile -->  
+        <mkdir dir="${dist}" />  
+   
+    </target>  
+
+    <target name="clean" description="clean up">  
+        <!-- Delete the ${build} and ${dist} directory trees -->  
+        <delete dir="${build}" />  
+        <delete dir="${dist}" /> 
+    </target>  
+  
+    <target name="dist" description="copy common assets" depends="init,clean">  
+
+        <!-- Create the time stamp -->  
+      <copy todir="${build}">  
+            <fileset dir="${commonLocation}">  
+               <include name="common.sh" />  
+               <include name="pkgs.sh" /> 
+            </fileset>  
+            <fileset dir=".">  
+               <include name="**/**" />  
+               <exclude name="*.xml" /> 
+             <exclude name="*.properties" /> 
+            </fileset>  
+        </copy>  
+  <tar destfile="${project.name}.tar">
+  <tarfileset dir="${commonLocation}">
+     <include name="**/**" />  
+   		<exclude name="*.xml" /> 
+    	<exclude name="*.properties" /> 
+  </tarfileset>
+   <tarfileset dir=".">
+  <include name="**/**" />  
+   <exclude name="*.xml" /> 
+    <exclude name="*.properties" /> 
+  </tarfileset>
+</tar>
+ <gzip src="${project.name}.tar" destfile="${project.name}.tar.gz"/>
+   <delete file="${project.name}.tar"/>
+    </target> 
+      <target name="scp" description="copy to remote ">
+      	  <scp file="${project.name}.tar.gz" todir="${ns_box_ssh}"/>
+
+      </target>  
+</project>
