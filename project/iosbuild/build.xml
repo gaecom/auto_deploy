@@ -6,18 +6,35 @@
     <property name="commonLocation" location="../../common" />  
     <property name="BUILDDIR" value="${PROJDIR}" /> 
     <property name="APP_DIR" value="${PROJDIR}/Build/Products/Release-iphoneos/" />
-        <property name="APP_FILE" value="${PROJDIR}/Build/Products/Release-iphoneos/${PROJ_NAME}.app" />
+  <property name="APP_FILE" value="${PROJDIR}/Build/Products/Release-iphoneos/${PROJ_NAME}.app" />
   <property name="PKG_URL" value="${URL}/${PROJ_NAME}.ipa" />
-    <target name="init" description="cd dir">  
+    <property name="WORKSPACE" value="${PROJDIR}/${PROJ_NAME}.xcodeproj" />
+    <target name="init" description="cd dir" depends="setvar">  
         <!-- Create the time stamp -->  
         <tstamp />  
               <mkdir dir="${dist}" />  
         <!-- Create the build directory structure used by compile -->  
         <echo>start build ${project.name} on ${PROJDIR}</echo>
-   
-  
 
-        </target>
+    
+
+        <echo>${PROJECT_SCHEME}</echo>
+    </target>
+    <target name="scheme.isset">
+      <condition property="scheme">
+        <not>
+          <isset property="PROJECT_SCHEME"/>
+        </not>
+      </condition>
+    </target>
+     <target name="setvar" depends="scheme.isset" if="scheme">
+        <exec executable="bash" outputproperty="PROJECT_SCHEME">
+                <arg value="-c" />
+                <!-- &quot; is remove " -->
+                <arg value="xcodebuild -list -project ${WORKSPACE}|grep -A 1 Schemes|tail -1|tr -d ' '" />
+        </exec>
+        <echo>scheme is not set,probing scheme ${PROJECT_SCHEME}</echo>
+    </target>
     <target name="test" description="cd dir">  
       <echo>${SSH_KEY}</echo>
      </target>
@@ -48,6 +65,7 @@
      </scp>
 
      </target> 
+
       <target name="assets" description="build ios" depends="init,clean">  
 
           <copy file="${PLIST_TEMP}" tofile="${dist}/${PROJ_NAME}.plist"/>
@@ -81,7 +99,10 @@
 
     </target>
     <target name="build" description="build ios">  
-
+        <exec executable="agvtool" dir="${PROJDIR}">
+           <arg line="-noscm new-version -all %env.BUILD_NUMBER%"/>
+        </exec>
+      
       <exec executable="xcodebuild" dir="${PROJDIR}">
         <arg line="-derivedDataPath ${BUILDDIR} -project ${PROJDIR}/${PROJ_NAME}.xcodeproj -sdk ${TARGET_SDK} -configuration ${BUILD_TYPE} -scheme ${PROJECT_SCHEME}"/>
       </exec>
