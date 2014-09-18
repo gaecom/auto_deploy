@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<project name="Iosbuild" basedir="." default="dist">  
+
+    <property file="build.properties" />  
+    <property name="dist" value="dist" /> 
+    <property name="commonLocation" location="../../common" />  
+    <property name="BUILDDIR" value="${PROJDIR}" /> 
+    <property name="APP_DIR" value="${PROJDIR}/Build/Products/Release-iphoneos/" />
+        <property name="APP_FILE" value="${PROJDIR}/Build/Products/Release-iphoneos/${PROJ_NAME}.app" />
+  <property name="PKG_URL" value="${URL}/${PROJ_NAME}.ipa" />
+    <target name="init" description="cd dir">  
+        <!-- Create the time stamp -->  
+        <tstamp />  
+              <mkdir dir="${dist}" />  
+        <!-- Create the build directory structure used by compile -->  
+        <echo>start build ${project.name} on ${PROJDIR}</echo>
+   
+  
+
+        </target>
+    <target name="test" description="cd dir">  
+      <echo>${SSH_KEY}</echo>
+     </target>
+
+    <target name="clean" description="clean up">  
+        <!-- Delete the ${build} and ${dist} directory trees -->  
+        <delete dir="${dist}" /> 
+    </target>  
+    <target name="archive" description="">  
+
+        <exec executable="/usr/bin/xcrun" dir="${PROJDIR}">
+        <arg line="--sdk ${BUILD_PLATFORM} PackageApplication --embed  ${PROVISONNING_PROFILE} -v ${APP_DIR}/${PROJ_NAME}.app --sign  ${DEVELOPPER_NAME} -o  ${APP_DIR}/${PROJ_NAME}.ipa"/>
+       
+      </exec>
+
+    </target> 
+    <target name="deploy"> 
+      <echo>${user.home}</echo>
+
+
+    <scp  verbose="true" todir="${SCP_REMOTE_DIR}"    keyfile="${SSHKEY1_FILE}"
+       passphrase="${SSHKEY1_PASS}">
+            <fileset dir="${dist}">
+              <include name="*.png"/>
+              <include name="*.plist"/>
+            </fileset>
+            <fileset file="${APP_DIR}/${PROJ_NAME}.ipa" />  
+     </scp>
+
+     </target> 
+      <target name="assets" description="build ios" depends="init,clean">  
+
+          <copy file="${PLIST_TEMP}" tofile="${dist}/${PROJ_NAME}.plist"/>
+          <copy  todir="${dist}">
+
+                <fileset file="${display_img}" />
+                <fileset file="${fullsize_img}" />
+            
+          </copy>
+
+          
+          <exec executable="bash" outputproperty="bundle_id">
+                <arg value="-c" />
+                <!-- &quot; is remove " -->
+                <arg value="mdls ${APP_FILE}|grep kMDItemCF|cut -d= -f2|tr -d '&quot; '" />
+          </exec>
+          <exec executable="bash" outputproperty="bundle_ver">
+                <arg value="-c" />
+                <arg value="mdls ${APP_FILE}|grep kMDItemVersion|cut -d= -f2|tr -d '&quot; '"/>
+                
+          </exec>
+          <basename property="fullsize_img_name" file="${fullsize_img}"/>
+          <basename property="display_img_name" file="${display_img}"/>
+           <replace file="${dist}/${PROJ_NAME}.plist" token="#bundle_ver#" value="${bundle_ver}"/>
+           <replace file="${dist}/${PROJ_NAME}.plist" token="#bundle_id#" value="${bundle_id}"/>
+           <replace file="${dist}/${PROJ_NAME}.plist" token="#pkg_url#" value="${PKG_URL}"/>
+           <replace file="${dist}/${PROJ_NAME}.plist" token="#title#" value="${PROJ_NAME}"/>
+              <replace file="${dist}/${PROJ_NAME}.plist" token="#URL#" value="${URL}"/>
+            <replace file="${dist}/${PROJ_NAME}.plist" token="#fullsize_img#" value="${fullsize_img_name}"/>
+            <replace file="${dist}/${PROJ_NAME}.plist" token="#display_img#" value="${display_img_name}"/>
+
+    </target>
+    <target name="build" description="build ios">  
+
+      <exec executable="xcodebuild" dir="${PROJDIR}">
+        <arg line="-derivedDataPath ${BUILDDIR} -project ${PROJDIR}/${PROJ_NAME}.xcodeproj -sdk ${TARGET_SDK} -configuration ${BUILD_TYPE} -scheme ${PROJECT_SCHEME}"/>
+      </exec>
+   </target>
+    <target name="rdeploy" depends="assets,deploy">
+      
+      </target>
+    
+   
+      <target name="dist" depends="build,archive,rdeploy"> 
+     </target> 
+
+</project>
