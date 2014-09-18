@@ -351,6 +351,9 @@ buildfile元素的id属性可用来引用这些元素。如果你需要一遍遍
 </javac>
 </target>
 </project>
+### pipe or store output to a property
+    <redirector outputproperty="bundle_id"> 
+          </redirector>
 所有使用PatternSets, FileSets 或 path-like structures嵌套元素的task也接受这种类型的引用。
 4Ant的Core Tasks
 4.1File（Directory）类
@@ -886,3 +889,35 @@ Security Note: Hard coding passwords and/or usernames in sshexec task can be a s
 	command="touch somefile"/>
 Invoking ant with the following command line:
     ant -Dusername=me -Dpassword=mypassword target1 target2
+
+<exec executable="mycommand">
+   <redirector output="myfile.txt" alwayslog="true"/>           
+</exec>
+
+### ant exec task中带双引号的参数
+1. 可以使用<arg value
+2. xml文件中使用&quot;表示引号
+
+
+
+
+### As you pointed out, first the line the the 'a2' will be selected. The tokenfilter then replaces a2 and the colon with nothing. Hope that helps.
+<loadfile srcfile="data" property="result">
+     <filterchain>
+           <linecontains>
+                <contains value="a2"/>
+           </linecontains>
+           <tokenfilter>
+                <replacestring from="a2," to=""/>
+           </tokenfilter>
+    </filterchain>
+</loadfile>
+<echo message="${result}"/>
+
+
+### Replacing characters in Ant property
+<propertyregex property="propB"
+               input="${propA}"
+               regexp=" "
+               replace="_"
+               global="true" />

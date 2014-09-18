@@ -102,7 +102,7 @@ hdiutil detach /Volumes/$puppet_base
  
 cd /private/tmp
 rm -rf ./$start_date
-
+mkdir -p /var/log/puppet
 
 cat -> /Library/LaunchDaemons/com.puppetlabs.puppet.plist<<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -115,6 +115,8 @@ cat -> /Library/LaunchDaemons/com.puppetlabs.puppet.plist<<EOF
         <false/>
         <key>ProgramArguments</key>
         <array>
+
+
                 <string>/usr/bin/puppet</string>
                 <string>agent</string>
                 <string>--no-daemonize</string>
@@ -122,9 +124,15 @@ cat -> /Library/LaunchDaemons/com.puppetlabs.puppet.plist<<EOF
                 <string>syslog</string>
                 <string>--color</string>
                 <string>false</string>
+                <string>--debug</string>
         </array>
+        <key>StandardErrorPath</key>
+        <string>/var/log/puppet/puppet.err</string>
+      <key>StandardOutPath</key>
+      <string>/var/log/puppet/puppet.out</string>
         <key>RunAtLoad</key>
         <true/>
+
         <key>ServiceDescription</key>
         <string>Puppet agent service</string>
         <key>ServiceIPC</key>
