@@ -921,3 +921,30 @@ Invoking ant with the following command line:
                regexp=" "
                replace="_"
                global="true" />
+
+
+
+  <fileset dir="${client.src}" >
+  <patternset refid="non.test.sources"/>
+</fileset>
+Groups all files in directory ${client.src}, using the same patterns as the above example.
+
+<fileset dir="${server.src}" casesensitive="yes">
+  <filename name="**/*.java"/>
+  <filename name="**/*Test*" negate="true"/>
+</fileset>
+Groups the same files as the top example, but using the <filename> selector.
+
+<fileset dir="${server.src}" casesensitive="yes">
+  <filename name="**/*.java"/>
+  <not>
+    <filename name="**/*Test*"/>
+  </not>
+</fileset>
+
+    <globmapper from="*" to="*.bak"/>
+
+
+    <scp todir="user:password@somehost:/home/chuck/">
+    <fileset dir="src_dir"/>
+  </scp>

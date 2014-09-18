@@ -109,12 +109,19 @@ function file_exists {
 #
 function file_not_empty {
 
-    file_size=$(du $1 | awk '{print $1}');
+    
   
-    if [[ -f "$1" || $file_size != 0 ]]; then
-        return 0
+    if [[ -f "$1" ]]; then
+        file_size=$(du $1 | awk '{print $1}');
+        if [ $file_size != 0 ];then
+             echo 0    
+        else 
+          echo 1    
+        fi
+    else
+        echo 1         
     fi
-    return 1
+   
 }
 
 #
