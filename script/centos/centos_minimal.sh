@@ -2,7 +2,7 @@
 #config centos network
 #setup env
 
-
+. pkgs.sh
 . common.sh
 set -e -v
 
@@ -10,17 +10,17 @@ set -e -v
 z_init_env
 
 # ######---------------------network setting
-# #exit
-# #echo "alias dns2=\"cat /var/lib/dhclient/dhclient-eth0.leases|grep domain-name-servers|tail -1|awk '{print \\\"dns is\t\\\",\\\$3}'\"">>~/.bashrc
-# #
-# #echo "export PATH=$PATH:/root/script">>~/.bashrc
-# #
-# #. ~/.bashrc
-# #
-# #
-setup_mode="dev"  #deploy
+#exit
+#echo "alias dns2=\"cat /var/lib/dhclient/dhclient-eth0.leases|grep domain-name-servers|tail -1|awk '{print \\\"dns is\t\\\",\\\$3}'\"">>~/.bashrc
+#
+#echo "export PATH=$PATH:/root/script">>~/.bashrc
+#
+#. ~/.bashrc
+#
+#
+setup_mode="deploy"  #deploy
 ##
-islocal=0
+islocal=1
 [ $(id -u) != 0 ] && echo "please login with root previledge" && exit
 setIp(){
 echo -e "start network config,detect network type is dhcp or static"
@@ -29,16 +29,17 @@ eth0_mac=`ifconfig eth0|grep -i eth0|awk '{print $5}'`
 eth0_cfg=/etc/sysconfig/network-scripts/ifcfg-eth0
 isstatic=0
 isdhcp=0
-grep "IPADDR" $eth0_cfg
+grep -i "IPADDR" $eth0_cfg
 if [ $? -eq 0 ];then
 isstatic=1;
 fi
-grep "DHCP" $eth0_cfg
+grep -i "DHCP" $eth0_cfg
 if [ $? -eq 0 ];then
 isdhcp=1;
 fi
 
 read -p "DHCP(1) or Static(2),default:" iptype
+
 if [ $iptype == 1 && isdhcp == 0 ];then
 cat ->$eth0_cfg <<DOC1
 DEVICE="eth0"
@@ -88,20 +89,22 @@ cp /etc/yum.conf /etc/yum.conf.lnmp
 sed -i 's:exclude=.*:exclude=:g' /etc/yum.conf
 }
 
+initEnv
+[ '$setip' == '1' ] && setIp
 # ######---------------------network setting finish
 
 
-yum -y install yum-fastestmirror perl-CPAN
+yum -y install yum-fastestmirror perl-CPAN wget mlocate
 echo -e "set 163 repo mirror...\n"
 [ -e "/etc/yum.repos.d/CentOS-Base.repo" ] && mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo_bk
-[ ! -e "/etc/yum.repos.d/CentOS-Base-163.repo" ] && curl http://mirrors.163.com/.help/CentOS6-Base-163.repo -o /etc/yum.repos.d/CentOS-Base-163.repo
+[ ! -e "/etc/yum.repos.d/CentOS-Base-163.repo" ] && curl -L "http://mirrors.163.com/.help/CentOS6-Base-163.repo" -o /etc/yum.repos.d/CentOS-Base-163.repo
 yum makecache
 echo -e "finish setting 163 repo mirror...\n"
 yum -y install screen
 #read -p "install system-config-network-tui,config use text ui,default is y(y/n)(options)" network_tui
 #[ "$devtoolvar" != "n"  -a ! -e "`which system-config-network-tui`" ] &&
 
-inst_pkg $libevent
+
 
 yum -y install system-config-network-tui wget system-config-firewall-tui
 
@@ -114,12 +117,14 @@ yum -y install system-config-network-tui wget system-config-firewall-tui
 
 yum -y groupinstall "Development tools"
 
+
+inst_pkg $libevent
 yum -y install openssl-devel perl-ExtUtils-Embed zlib-devel scons cmake
 if [ -s /etc/selinux/config ]; then
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 fi
 for packages in time gperf telnet libtool-libs  libjpeg libjpeg-devel libpng libpng-devel  gd gd-devel freetype freetype-devel libxml2 libxml2-devel  zlib-devel  glib2-devel  bzip2-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel  libidn libidn-devel openssl openssl-devel vim-minimal nano   ncurses-devel gmp-devel  unzip libcap;
-do yum -y install $packages; done
+do yum -y install $packages >/dev/nul 2>&1; done
 
 yum install axel
 
@@ -133,7 +138,10 @@ CFLAGS=-fPIC ./configure --prefix=/usr
 make CFLAGS=-fpic
 make CFLAGS=-fPIC install
 ldconfig
-#install pcre
+cd ..
+
+# #install pcre
+
 
 inst_pkg $pcre --enable-jit --enable-utf8
 #install end 

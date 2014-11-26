@@ -650,7 +650,7 @@ pkgDir=${PKGDIR:-.}
 
     ext=${installfile##*.}
 
-    [ ! -e $pkgDir/$installfile ] && wget --no-check-certificate -c "$installurl" -O $pkgDir/$installfile
+    [ ! -e $pkgDir/$installfile ] && curl -C - -k -L   "$installurl" -o $pkgDir/$installfile
 
     [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
     echo $installfile
@@ -680,7 +680,7 @@ dezip_pkg(){
    # 
    file_size=$(du $pkgDir/$installfile | awk '{print $1}');
   
-   [[ ! -e $pkgDir/$installfile || $file_size == 0 ]] && wget --no-check-certificate -c "$installurl" -O $pkgDir/$installfile
+   [[ ! -e $pkgDir/$installfile || $file_size == 0 ]] && curl -C - -k -L   "$installurl" -o $pkgDir/$installfile
 
    [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
    [[ ! -z ${cmds[$ext]} ]] && ${cmds[$ext]} $installfile
@@ -720,25 +720,40 @@ config_pkg(){
 
     ext=${installfile##*.}
 
-    [ ! -e $pkgDir/$installfile ] && wget --no-check-certificate -c "$installurl" -O $pkgDir/$installfile
+    [ ! -e $pkgDir/$installfile ] && curl -C - -k -L   "$installurl" -o $pkgDir/$installfile
     echo -e "start install $installfile....\n"
     [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
 
    [[ ! -z ${cmds[$ext]} ]] && ${cmds[$ext]} $installfile
    # installdir=`tar --exclude='*/*' -tf $installfile`
-   if [ $ext == 'zip' ];then
+ if [ $ext == 'zip' ];then
    installdir=`unzip -v $installfile | grep /|head -1|awk '{print $8}'`
    elif [[ $ext == 'gz' || $ext == 'tgz' || $ext == 'bz2' ]];then
    installdir=`tar  -tf $installfile|grep /|head -1`
-   
-    installdir=${installdir%%/*}
+   installLastdir=`tar  -tf $installfile|grep /|tail -1`
+   instDir2=`echo $installdir|cut -d/ -f1`
+   instLastDir2=`echo $installLastdir|cut -d/ -f1`
+   if [ "$instDir2" != "$instLastDir2" ];then
+        installdir="."
+      else
+
+      installdir=${installdir%%/*}  
+      if [ $instDir2 == "." ];then
+
+      installdir="`echo $installdir|cut -d/ -f2`"
+      fi
+   fi
+    
    fi
   
     cd $installdir
-    [ -e "configure.ac" ] &&  autoreconf -fvi
-    [ -e "config.m4" ] && [[ ! -z `grep -E "PHP_ARG_ENABLE" config.m4` ]] && phpize
-    ./configure $options
-
+    set +e
+    #[ -e "configure.ac" ] &&  autoreconf -fvi
+     [ -e "configure.ac" ] &&  autoreconf -fvi >/dev/nul 2&>1
+    [ -e "config.m4" ] && [[ ! -z `grep -E "PHP_" config.m4` ]] && phpize >/dev/nul 2&>1
+    ./configure $options 
+   
+set -e -v
 }
 cd_pkg(){
  pkgDir=${PKGDIR:-.}
@@ -760,11 +775,12 @@ cd_pkg(){
   
 
    
-    [ ! -e $pkgDir/$installfile ] && wget --no-check-certificate -c "$installurl" -O $pkgDir/$installfile
+    [ ! -e $pkgDir/$installfile ] && curl -C - -k -L   "$installurl" -o $pkgDir/$installfile
     echo -e "start install $installfile....\n"
 
     [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
 
+   [[ ! -z ${cmds[$ext]} ]] && ${cmds[$ext]} $installfile
    # installdir=`tar --exclude='*/*' -tf $installfile`
    if [ $ext == 'zip' ];then
    installdir=`unzip -v $installfile | grep /|head -1|awk '{print $8}'`
@@ -780,9 +796,9 @@ cd_pkg(){
 inst_pkg()
 {
      pkgDir=${PKGDIR:-.}
-	#usage:iPkg2 pkgurl pkgname option(opt)
+    #usage:iPkg2 pkgurl pkgname option(opt)
     declare -A cmds=([gz]="tar xvzf" [tgz]="tar xvzf" [zip]="unzip" [bz2]="tar xvjf")
-    [ $# -lt 1 ] && msg_alert "parameters less than 1"  && return 1
+    [ $# -lt 1 ] && msg_alert "parameters less than 1"  && return 1 && exit
     local installurl=$1
     local installfile=''
     local installdir=''
@@ -794,10 +810,10 @@ inst_pkg()
     echo "installurl $installurl $installfile"
 
 
-	ext=${installfile##*.}
+    ext=${installfile##*.}
 
-	[ ! -e $pkgDir/$installfile ] && wget --no-check-certificate -c "$installurl" -O $pkgDir/$installfile
-	echo -e "start install $installfile....\n"
+    [ ! -e $pkgDir/$installfile ] && curl -C - -k -L  "$installurl"   -o $pkgDir/$installfile
+    echo -e "start install $installfile....\n"
 
 
    [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
@@ -808,20 +824,33 @@ inst_pkg()
    installdir=`unzip -v $installfile | grep /|head -1|awk '{print $8}'`
    elif [[ $ext == 'gz' || $ext == 'tgz' || $ext == 'bz2' ]];then
    installdir=`tar  -tf $installfile|grep /|head -1`
-   
-    installdir=${installdir%%/*}
+   installLastdir=`tar  -tf $installfile|grep /|tail -1`
+   instDir2=`echo $installdir|cut -d/ -f1`
+   instLastDir2=`echo $installLastdir|cut -d/ -f1`
+   if [ "$instDir2" != "$instLastDir2" ];then
+        installdir="."
+      else
+
+      installdir=${installdir%%/*}  
+      if [ $instDir2 == "." ];then
+
+      installdir="`echo $installdir|cut -d/ -f2`"
+      fi
    fi
-  
+    
+   fi
+    set +e
     cd $installdir
-    [ -e "configure.ac" ] &&  autoreconf -fvi
-	[ -e "config.m4" ] && [[ ! -z `grep -E "PHP_ARG_ENABLE" config.m4` ]] && phpize
-	./configure $options
-	make
-	sudo make install
-	sudo ldconfig
-	msg_notice "finish installing $installfile....\n"
-	cd ..
+    [ -e "configure.ac" ] &&  autoreconf -fvi >/dev/nul 2&>1
+    [ -e "config.m4" ] && [[ ! -z `grep -E "PHP_" config.m4` ]] && phpize >/dev/nul 2&>1
+    ./configure $options 
+    make
+    sudo make install
+    sudo ldconfig
+    msg_notice "finish installing $installfile....\n"
+    cd ..
     echo $installdir
+    set -e -v
 }
 mkdir2(){
     [ ! -e "$1" ] && mkdir -p $1
@@ -854,12 +883,26 @@ z_count_bynetstate()
 }
 z_init_alias()
 {
-echo 'alias loc2="locate -i -b -r "'>>~/.bashrc
-echo 'alias ng2="service nginx restart"'>>~/.bashrc
-echo 'alias my2="service mysql restart"'>>~/.bashrc
-echo 'alias fp2="killall -9 php-fpm;php-fpm &"'>>~/.bashrc
-echo 'alias me2="killall -9 memcached;memcached -u memcache -d"'>>~/.bashrc
+type chks2 >/dev/null 2>&1
+if [ $? != 0 ];then
+cat ->>$HOME/.bashrc<<EOF
+function chks2 {
+  ps -ef|grep [n]ginx  >/dev/null 2>&1 && echo "nginx running"
+  ps -ef|grep [m]emcache >/dev/null 2>&1 && echo "memcache running"
+  ps -ef|grep [m]ongod >/dev/null 2>&1 && echo "mongod running"
+  ps -ef|grep [p]hp-fpm >/dev/null 2>&1 && echo "php-fpm running"
+  ps -ef|grep [m]ysql >/dev/null 2>&1 && echo "mysql running"
+}
+EOF
+fi
+type lb2 >/dev/null 2>&1 || echo 'alias lb2="vi $HOME/.bashrc"'>>$HOME/.bashrc
+type eb2 >/dev/null 2>&1 || echo 'alias eb2=". $HOME/.bashrc"'>>$HOME/.bashrc
 
+type ng2 >/dev/null 2>&1 || echo 'alias ng2="service nginx restart"'>>$HOME/.bashrc
+type my2 >/dev/null 2>&1 || echo 'alias my2="service mysql restart"'>>$HOME/.bashrc
+type fp2 >/dev/null 2>&1 || echo 'alias fp2="killall -9 php-fpm;php-fpm &"'>>$HOME/.bashrc
+type me2 >/dev/null 2>&1 || echo 'alias me2="killall -9 memcached;memcached -u memcache -d"'>>$HOME/.bashrc
+. $HOME/.bashrc
 }
 #$1:usergroup
 #$2 user
@@ -869,9 +912,13 @@ usermod -a -G $1 $2
 }
 z_init_env()
 {
+if [[ ! $PATH =~ "z_path_included" ]];then
+export PATH=z_path_included:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin:/opt/local/sbin
+fi
 
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
-echo "/usr/local/lib">>/etc/ld.so.conf.d/user_lib_local.conf
+
+
+grep "/usr/local/lib" /etc/ld.so.conf.d/user_lib_local.conf >/dev/null 2>&1 || echo "/usr/local/lib">>/etc/ld.so.conf.d/user_lib_local.conf
 
 z_init_vars
 z_init_alias
@@ -880,8 +927,8 @@ z_init_swap
 }
 
 z_init_vars() {
-    MEMSIZE=z_total_mem
-    SWAPSIZE=z_total_swap
+    export MEMSIZE=z_total_mem
+    export SWAPSIZE=z_total_swap
 
 }
 z_total_mem(){
@@ -900,8 +947,8 @@ z_init_swap(){
     sudo chmod 600 /mnt/2G.swap
     sudo mkswap /mnt/2G.swap
     sudo swapon /mnt/2G.swap
-    sudo vi /etc/fstab
-    /mnt/2G.swap none swap sw 0 0
+    echo /mnt/2G.swap none swap sw 0 0>>/etc/fstab
+    
     fi
 }
 grab_bytes() {

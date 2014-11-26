@@ -3,7 +3,7 @@
 . common.sh
 
 inst_pkg $memcached
-
+z_init_env
 z_add_sysuser memcache
 
 if [ $MEMSIZE -lt 512 ];then

@@ -2,7 +2,8 @@
 #note:compile will take long time
 . pkgs.sh
 . common.sh
-
+set -e -v
+z_init_env
 cd_pkg $mongodb
 mkdir2 /usr/local/mongodb
 mkdir2 /var/log/mongodb
@@ -107,5 +108,6 @@ chkconfig --add mongod
 chkconfig --level 345 mongod on
 echo "db.addUser('$mongo_user','$mongo_pwd')">/tmp/f.js
 mongo admin /tmp/f.js
+mongo wrtc /tmp/f.js
 sed -i '/^#auth/s/#//' /etc/mongod.conf
 service mongod restart

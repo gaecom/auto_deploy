@@ -3,7 +3,7 @@
 . common.sh
 
 set -e -v
-groupadd www
+z_init_env
 z_add_sysuser www
 geodir=/home/wwwroot/geodata
 prefix=/usr/local/nginx
@@ -24,6 +24,12 @@ echo -e "start compiling nginx\n"
 mkdir -p $CLIENT_TEMP
 mkdir -p $PROXY_TEMP
 mkdir -p $FCGI_TEMP
+
+mkdir -p /etc/nginx/vhost
+sed -i '$d' /etc/nginx/nginx.conf
+echo -e "include vhost/e_*.conf;\n}">>/etc/nginx/nginx.conf
+
+
 
 echo "install geo libs"
 wget -c $geoCityLib

@@ -2,16 +2,21 @@
 #note:compile will take long time
 . pkgs.sh
 . common.sh
-
+. config.sh
+z_init_env
 cd_pkg $mongodb
 
 scons all
 scons install
-
+[ -z $datapre ] && datapre=''
+logfile=${datapre}/var/log/mongodb.log
+datadir=${datapre}/var/db/mongodb
 z_add_sysuser mongo
-mkdir /var/log/mongodb
-chown -R mongo /var/log/mongodb
-mongod --logpath=/var/log/mongodb.log --slowms=50 --master --dbpath=/var/db/mongodb
+mkdir -p $logdir $datadir
+
+chown -R mongo $logdir
+chown -R mongo $datadir
+mongod --logpath=$logfile --slowms=50 --master --dbpath=$datadir
 
 NAME=mongod
 
@@ -35,12 +40,12 @@ if [ -f /etc/sysconfig/mongodb ]; then
 fi
 
 prog="mongod"
-mongod="/usr/local/mongodb/bin/mongod"
+mongod="/usr/local/bin/mongod"
 RETVAL=0
 
 start() {
 echo -n $"Starting $prog: "
-$mongod --auth --logpath=/var/log/mongodb.log --logappend 2>&1 --slowms=50 --master --dbpath=/var/db/mongodb &
+$mongod --auth --logpath=$logfile --logappend 2>&1 --slowms=50 --master --dbpath=$datadir &
 RETVAL=$?
 echo
 [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$prog

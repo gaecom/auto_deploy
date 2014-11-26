@@ -1,9 +1,9 @@
 #!/bin/bash
 #exit on error and debug verbose
-set -v
+set -e -v
 . common.sh
 . pkgs.sh
-
+z_init_env
 
 setup_mode="pro"
 cur_dir=`pwd`
@@ -12,13 +12,14 @@ echo -e "install php lib\n"
 yum -y install mlocate.x86_64 libssh2-devel.x86_64 openssl.x86_64 libssh2.x86_64 libxml2.x86_64 libxml2-devel.x86_64 libxslt libxslt-devel
 yum -y install libmcrypt.x86_64 libmcrypt-devel.x86_64  tidy.x86_64 libtidy.x86_64 libtidy-devel.x86_64 readline-devel
 yum -y install bzip2-devel.x86_64 libjpeg.x86_64  libXpm-devel.x86_64  libtool-ltdl-devel.x86_64 libvpx libvpx-devel  t1lib  t1lib-devel icu libicu-devel
-rpm -ivh $libmcryptDev
 
-rpm -ivh $libmcrypt
+
+rpm -qa|grep libmcrypt-devel || rpm -ivh $libmcryptDev
+
+rpm -qa|grep libmcrypt || rpm -ivh $libmcrypt
 ldconfig
 echo -e "finish installing php lib\n"
 inst_pkg $aspell
-
 ldconfig
 echo -e "install php \n"
 
@@ -32,7 +33,11 @@ config_pkg  $php --with-libdir=lib64 --prefix=/usr/local --enable-fpm --with-lay
 --with-pdo-mysql=mysqlnd --enable-soap --with-xmlrpc --with-xsl --with-tidy=/usr --with-readline --enable-pcntl --enable-sysvshm --enable-sysvmsg --enable-shmop --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-snmp
 
 echo -e "install php end \n"
+if [ -z "pwd|grep 5.6" ];then
 make ZEND_EXTRA_LIBS='-liconv'
+else 
+make
+fi
 make install
 
 rm -f /usr/bin/php
@@ -40,10 +45,10 @@ ln -s -f /usr/local/php/bin/php /usr/bin/php
 ln -s -f  /usr/local/php/bin/phpize /usr/bin/phpize
 ln -s -f  /usr/local/php/sbin/php-fpm /usr/bin/php-fpm
 echo "Copy new php configure file."
-mkdir -p -f /usr/local/php/etc
+mkdir -p  /usr/local/php/etc
 
 cp -f php.ini-production /usr/local/php/etc/php.ini
-ln -s /usr/local/php/etc/php.ini /etc/php.ini
+ln -s -f /usr/local/php/etc/php.ini /etc/php.ini
 ln -s -f /usr/local/php/bin/php-config /usr/bin/php-config
 # php extensions
 echo "Modify php.ini......"
@@ -56,6 +61,10 @@ elif [ $phpVer == "5.5" ];then
 ext_dir=/usr/local/php/lib/php/extensions/no-debug-non-zts-20121212/
 elif [ $phpVer == "5.3" ];then
 ext_dir=/usr/local/php/lib/php/extensions/no-debug-non-zts-20090626/
+elif [ $phpVer == "5.6" ];then
+ext_dir=/usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/
+else 
+	ext_dir="/usr/local/php/lib/php/extensions/`ls /usr/local/php/lib/php/extensions/|head -1`"
 fi
 
 sed -i 's/post_max_size = 8M/post_max_size = 50M/g' /usr/local/php/etc/php.ini
@@ -72,7 +81,7 @@ sed -i 's/disable_functions =.*/disable_functions = passthru,exec,system,chroot,
 sed -i "s#extension_dir = \"./\"#extension_dir = \"$ext_dir\"\n#" /usr/local/php/etc/php.ini
 sed -i "s#; extension_dir = \"/#extension_dir = \"/#" /usr/local/php/etc/php.ini
 
-cp /usr/local/etc/php-fpm.conf.default /usr/local/etc/php-fpm.conf
+cp /usr/local/php/etc/php-fpm.conf.default /usr/local/etc/php-fpm.conf
 cat ->/usr/local/etc/php-fpm.conf <<EOC
 [global]
 pid = /var/run/php-fpm.pid
@@ -83,7 +92,7 @@ log_level = notice
 listen = /tmp/php-cgi.sock
 user = www
 group = www
-listen.user = www
+listen.owner = www
 listen.group = www
 listen.mode = 0660
 pm = dynamic
@@ -96,10 +105,12 @@ cd $cur_dir
 echo "install php extensions"
 inst_pkg "$xdebug" --enable-xdebug
 inst_pkg "$phpRedis"
-inst_pkg "$phpMongo"
+
 inst_pkg "$libmemcached"
 inst_pkg "$igbinary"
 inst_pkg "$phpMemcached"  --enable-memcached-igbinarynary
+
+inst_pkg "$phpMongo"
 inst_pkg "$yaf" yaf.tgz
 
 inst_pkg "$phpGearman"

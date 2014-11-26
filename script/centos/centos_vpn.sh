@@ -1,7 +1,9 @@
 #!/bin/bash
 #hash  declare -A a;a[w]=abc;a[b]=efg
+set -e -v
 . pkgs.sh
 . common.sh
+z_init_env
 [ $# -lt 2 ] && echo "usage:$0 user pwd" && exit
 
 #start checking environment

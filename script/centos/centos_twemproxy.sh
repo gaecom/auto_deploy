@@ -1,9 +1,13 @@
 #!/bin/bash
-. pkgs
+. pkgs.sh
+. config.sh
 . common.sh
 
-inst_pkg $twemcache
+NAME=twemcache
+inst_pkg $twemproxy
 
+which /usr/local/sbin/nutcracker >/dev/nul 2>&1 && ln -s -f /usr/local/sbin/nutcracker /usr/local/bin/nutcracker
+which /usr/local/bin/nutcracker >/dev/nul 2>&1 && ln -s -f /usr/local/bin/nutcracker /usr/local/sbin/nutcracker
 
 cat >/etc/init.d/$NAME<<NG1
 
@@ -23,7 +27,7 @@ cat >/etc/init.d/$NAME<<NG1
 
 NG1
 cat >>/etc/init.d/$NAME<<'NG2'
-tw_bin='/usr/local/bin/nutcracker'
+tw_bin='/usr/local/sbin/nutcracker'
 tw_conf='/etc/nutcracker.yml'
 tw_opts='-d -c '
 

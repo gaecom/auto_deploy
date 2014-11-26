@@ -39,7 +39,7 @@ echo "download modules end"
 
 
 
-
+mkdir -p /etc/nginx/vhost
 
 for x in $modules;do
 	module="$module --add-module=$x "

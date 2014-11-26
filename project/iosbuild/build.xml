@@ -16,7 +16,7 @@
         <!-- Create the build directory structure used by compile -->  
         <echo>start build ${project.name} on ${PROJDIR}</echo>
 
-    
+        
 
         <echo>${PROJECT_SCHEME}</echo>
     </target>
@@ -42,11 +42,12 @@
     <target name="clean" description="clean up">  
         <!-- Delete the ${build} and ${dist} directory trees -->  
         <delete dir="${dist}" /> 
+       <delete dir="${BUILDDIR}/build" />  
     </target>  
     <target name="archive" description="">  
 
         <exec executable="/usr/bin/xcrun" dir="${PROJDIR}">
-        <arg line="--sdk ${BUILD_PLATFORM} PackageApplication --embed  ${PROVISONNING_PROFILE} -v ${APP_DIR}/${PROJ_NAME}.app --sign  ${DEVELOPPER_NAME} -o  ${APP_DIR}/${PROJ_NAME}.ipa"/>
+        <arg line="--sdk ${BUILD_PLATFORM} PackageApplication --embed  ${PROVISONNING_PROFILE} -v /Users/chjade/Downloads/smartlife/build/Release-iphoneos/smartlife.app --sign  ${DEVELOPPER_NAME} -o  /Users/chjade/Downloads/smartlife/build/Release-iphoneos/smartlife.ipa"/>
        
       </exec>
 
@@ -55,18 +56,17 @@
       <echo>${user.home}</echo>
 
 
-    <scp  verbose="true" todir="${SCP_REMOTE_DIR}"    keyfile="${SSHKEY1_FILE}"
-       passphrase="${SSHKEY1_PASS}">
+    <scp  verbose="true" todir="${SCP_REMOTE_DIR}"    keyfile="${SSHKEY1_FILE}" passphrase="${SSHKEY1_PASS}">
             <fileset dir="${dist}">
               <include name="*.png"/>
               <include name="*.plist"/>
             </fileset>
-            <fileset file="${APP_DIR}/${PROJ_NAME}.ipa" />  
+            <fileset file="/Users/chjade/Downloads/smartlife/build/Release-iphoneos/smartlife.ipa" />  
      </scp>
 
      </target> 
 
-      <target name="assets" description="build ios" depends="init,clean">  
+      <target name="assets" description="build ios" depends="init">  
 
           <copy file="${PLIST_TEMP}" tofile="${dist}/${PROJ_NAME}.plist"/>
           <copy  todir="${dist}">
@@ -104,7 +104,7 @@
         </exec>
       
       <exec executable="xcodebuild" dir="${PROJDIR}">
-        <arg line="-derivedDataPath ${BUILDDIR} -project ${PROJDIR}/${PROJ_NAME}.xcodeproj -sdk ${TARGET_SDK} -configuration ${BUILD_TYPE} -scheme ${PROJECT_SCHEME}"/>
+        <arg line=" -project ${PROJDIR}/${PROJ_NAME}.xcodeproj -sdk ${TARGET_SDK} -configuration ${BUILD_TYPE} -target smartlife"/>
       </exec>
    </target>
     <target name="rdeploy" depends="assets,deploy">
@@ -112,7 +112,7 @@
       </target>
     
    
-      <target name="dist" depends="build,archive,rdeploy"> 
+      <target name="dist" depends="clean,build,archive,rdeploy"> 
      </target> 
 
 </project>

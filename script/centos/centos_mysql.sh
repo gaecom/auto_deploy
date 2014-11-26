@@ -6,14 +6,16 @@
 #perl -MCPAN -e 'install YAML'
 #如果安装不了,cpan,进入cpan安装install YAML
 set -e -v
-
-. pkgs.sh
-. inst_config.sh
-
 . common.sh
+. pkgs.sh
+. config.sh
+
+z_init_env
+
 [ "`id -u mysql`" == "" ] && useradd  -r -s /sbin/nologin -M -U mysql
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
-export PATH
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+
 
 #file_url=http://cdn.mysql.com/Downloads/MySQL-5.6/MySQL-5.6.12-1.el6.src.rpm
 # file_url=http://cdn.mysql.com/Downloads/MySQL-5.5/MySQL-5.5.32-1.el6.src.rpm
@@ -22,7 +24,7 @@ export PATH
 # rpm -ivh $filename
 # rpmbuild -bp ~/rpmbuild/SPECS/*.spec
 
-inst_pkg $mysql_pkg
+cd_pkg $mysql
 ##make patch
 #sed  -i 's#\(pfs_connect_attr-t.*\) ${ZLIB_LIBRARY}#\1 z#' storage/perfschema/unittest/CMakeLists.txt
 #rpmbuild --rebuild --clean $filename
@@ -143,6 +145,7 @@ ln -s /usr/local/mysql/bin/mysqld_safe /usr/bin/mysqld_safe
 ln -s /usr/local/mysql/bin/mysql /usr/bin/mysql
 ln -s /usr/local/mysql/bin/mysqldump /usr/bin/mysqldump
 ln -s /usr/local/mysql/bin/mysqladmin /usr/bin/mysqladmin
+service mysql start
 read -p "new mysql password" pwd
 mysqladmin -uroot -p"" password $pwd
 

@@ -18,3 +18,4 @@ tools/
 build/
 config.sh
 inst_config.sh
+*/.DS_Store
