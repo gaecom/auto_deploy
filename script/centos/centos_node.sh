@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e -v
-. pkgs.sh
 . common.sh
-z_init_env
 inst_pkg $node
 
 npm install -g socket.io redis hiredis lodash

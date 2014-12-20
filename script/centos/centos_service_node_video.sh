@@ -1,5 +1,8 @@
+#!/bin/bash
+. common.sh
 NAME=wrtc_sig
-cat >/etc/init.d/$NAME<<NG1
+
+cat ->/etc/init.d/$NAME<<NG1
 #!/bin/bash
 #
 #   Startup script for the wrtc_sig server
@@ -10,17 +13,24 @@ cat >/etc/init.d/$NAME<<NG1
 # processname: wrtc_sig
 #
 NG1
-cat >>/etc/init.d/$NAME<<'NG2'
+cat ->>/etc/init.d/$NAME<<'NG2'
 # Source function library
 . /etc/rc.d/init.d/functions
 prog="wrtc_sig"
-node="/usr/local/bin/node"
+NAME=wrtc_sig
+node_prog="/usr/local/bin/node"
 RETVAL=0
 
+
 start() {
-echo -n $"Starting $prog: "
-cd /home/wwwroot/wrtc_start/server
-$node ssl_video_server_o.js www.niuspace.com &
+echo -n "Starting $NAME: "
+NG2
+cat ->>/etc/init.d/$NAME<<NG3
+cd $prefix/home/wwwroot/wrtc_start/server
+NG3
+cat ->>/etc/init.d/$NAME<<'NG4'
+
+$node_prog ssl_video_server_o.js www.niuspace.com &
 RETVAL=$?
 echo
 [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$prog
@@ -74,7 +84,7 @@ RETVAL=1
 esac
 
 exit $RETVAL
-NG2
+NG4
 
 sudo chmod a+x /etc/init.d/wrtc_sig
 chkconfig --add wrtc_sig

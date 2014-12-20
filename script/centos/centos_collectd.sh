@@ -2,7 +2,11 @@
 #/bin/bash
 #config centos network
 #setup env
+. pkgs.sh
+. common.sh
+. config.sh
 
+z_init_env
 wget -c http://collectd.org/files/collectd-5.4.1.tar.bz2 -o collectd-5.4.1.tar.bz2
 
 tar cvjf collectd-5.4.1.tar.bz2

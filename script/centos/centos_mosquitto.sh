@@ -1,9 +1,8 @@
 #!/bin/bash
-. ./pkgs.sh
-. ./common.sh
+. common.sh
 #inst_pkg http://mosquitto.org/files/source/mosquitto-1.2.tar.gz
 z_add_sysuser  mos
-z_init_env
+
 
 
 mosquitto_passwd -c /etc/mosquitto/user_pwd  $mos_user

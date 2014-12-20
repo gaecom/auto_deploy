@@ -2,8 +2,6 @@
 #exit on error and debug verbose
 set -e -v
 . common.sh
-. pkgs.sh
-z_init_env
 
 setup_mode="pro"
 cur_dir=`pwd`

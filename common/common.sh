@@ -778,19 +778,31 @@ cd_pkg(){
     [ ! -e $pkgDir/$installfile ] && curl -C - -k -L   "$installurl" -o $pkgDir/$installfile
     echo -e "start install $installfile....\n"
 
-    [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
 
+   [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
    [[ ! -z ${cmds[$ext]} ]] && ${cmds[$ext]} $installfile
+
    # installdir=`tar --exclude='*/*' -tf $installfile`
    if [ $ext == 'zip' ];then
    installdir=`unzip -v $installfile | grep /|head -1|awk '{print $8}'`
    elif [[ $ext == 'gz' || $ext == 'tgz' || $ext == 'bz2' ]];then
    installdir=`tar  -tf $installfile|grep /|head -1`
-   
-    installdir=${installdir%%/*}
+   installLastdir=`tar  -tf $installfile|grep /|tail -1`
+   instDir2=`echo $installdir|cut -d/ -f1`
+   instLastDir2=`echo $installLastdir|cut -d/ -f1`
+   if [ "$instDir2" != "$instLastDir2" ];then
+        installdir="."
+      else
+
+      installdir=${installdir%%/*}  
+      if [ $instDir2 == "." ];then
+
+      installdir="`echo $installdir|cut -d/ -f2`"
+      fi
    fi
-  
-    cd $installdir
+    
+   fi
+    set +e
 
 }
 inst_pkg()
@@ -900,35 +912,34 @@ type eb2 >/dev/null 2>&1 || echo 'alias eb2=". $HOME/.bashrc"'>>$HOME/.bashrc
 
 type ng2 >/dev/null 2>&1 || echo 'alias ng2="service nginx restart"'>>$HOME/.bashrc
 type my2 >/dev/null 2>&1 || echo 'alias my2="service mysql restart"'>>$HOME/.bashrc
-type fp2 >/dev/null 2>&1 || echo 'alias fp2="killall -9 php-fpm;php-fpm &"'>>$HOME/.bashrc
-type me2 >/dev/null 2>&1 || echo 'alias me2="killall -9 memcached;memcached -u memcache -d"'>>$HOME/.bashrc
+type fp2 >/dev/null 2>&1 || echo 'alias fp2="service php-fpm stop;service php-fpm start"'>>$HOME/.bashrc
+type me2 >/dev/null 2>&1 || echo 'alias me2="service memcached stop;service memcached start"'>>$HOME/.bashrc
 . $HOME/.bashrc
 }
 #$1:usergroup
 #$2 user
 z_mod_user()
 {
-usermod -a -G $1 $2
+    usermod -a -G $1 $2
 }
+
 z_init_env()
 {
-if [[ ! $PATH =~ "z_path_included" ]];then
-export PATH=z_path_included:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin:/opt/local/sbin
-fi
+. config.sh
+. pkgs.sh
+if [[ ! $PATH =~ "z_execd_included:" ]];then
 
-
-
+export PATH=z_execd_included:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin:/opt/local/sbin
 grep "/usr/local/lib" /etc/ld.so.conf.d/user_lib_local.conf >/dev/null 2>&1 || echo "/usr/local/lib">>/etc/ld.so.conf.d/user_lib_local.conf
-
 z_init_vars
 z_init_alias
 z_init_swap
-
+fi
 }
 
 z_init_vars() {
-    export MEMSIZE=z_total_mem
-    export SWAPSIZE=z_total_swap
+    export MEMSIZE=`z_total_mem`
+    export SWAPSIZE=`z_total_swap`
 
 }
 z_total_mem(){
@@ -986,5 +997,5 @@ inst_jdk8() {
     echo "export CLASSPATH=$jdkdir/lib/dt.jar:$jdkdir/lib/tools.jar">>$HOME/.bashrc
     echo "export PATH=$PATH:$jdkdir/bin">>$HOME/.bashrc
 }
-
 init
+z_init_env

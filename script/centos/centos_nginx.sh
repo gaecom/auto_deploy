@@ -4,6 +4,7 @@
 
 #start add module here
 set -e -v -x
+. common.sh
 #pagespeed is about 95M
 enable_pagespeed=0
 

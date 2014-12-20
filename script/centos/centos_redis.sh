@@ -1,11 +1,9 @@
 #!/bin/bash
 set -e -v
 . common.sh
-. pkgs.sh
-. config.sh
 #dir="`inst_pkg $redis`"
 
-z_init_env
+
 # will prompt 
 #. $dir/utils/install_server.sh
 #

@@ -54,3 +54,9 @@ pcre=http://rypkg.oss-cn-hangzhou.aliyuncs.com/pcre-8.12.tar.gz
 centos_extra_repos_6=http://mirrors.yun-idc.com/epel/6/i386/epel-release-6-8.noarch.rpm
 centos_extra_repos_5=http://ftp.cuhk.edu.hk/pub/linux/fedora-epel/5/i386/epel-release-5-4.noarch.rpm
 sendemail=http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+## download from github
+#https://github.com/lukas-vlcek/bigdesk/archive/master.zip
+es=https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.1.tar.gz
+
+kibana3=https://download.elasticsearch.org/kibana/kibana/kibana-3.1.2.tar.gz
+logstash=https://download.elasticsearch.org/logstash/logstash/logstash-1.4.2.tar.gz

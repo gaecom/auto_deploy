@@ -1,6 +1,6 @@
 #!/bin/bash
 . common.sh
-. config.sh
+
 ./centos_minimal.sh
 
 ./centos_mysql.sh

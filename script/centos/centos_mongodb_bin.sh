@@ -1,9 +1,9 @@
 #!/bin/bash
 #note:compile will take long time
-. pkgs.sh
-. common.sh
+
 set -e -v
-z_init_env
+. common.sh
+
 cd_pkg $mongodb
 mkdir2 /usr/local/mongodb
 mkdir2 /var/log/mongodb

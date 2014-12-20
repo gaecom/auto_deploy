@@ -1,9 +1,11 @@
 #!/bin/bash
 #rpm -ivh http://apt.sw.be/redhat/el6/en/x86_64/rpmforge/RPMS/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
 #requires lnmp or lamp
-. common.sh
-set -e -v
 
+
+
+set -e -v
+. common.sh
 #yum -y install rrdtool net-snmp net-snmp-libs net-snmp-utils
 #sed -i 's/.1.3.6.1.2.1.1/.1.3.6.1.2.1/' /etc/snmp/snmpd.conf
 

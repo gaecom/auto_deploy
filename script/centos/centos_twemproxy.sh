@@ -1,8 +1,5 @@
 #!/bin/bash
-. pkgs.sh
-. config.sh
 . common.sh
-
 NAME=twemcache
 inst_pkg $twemproxy
 

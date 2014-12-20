@@ -1,4 +1,5 @@
 #/bin/bash
+. common.sh
 cat ->/etc/yum.repos.d/mongodb.repo<<EOF
 [mongodb]
 name=MongoDB Repository

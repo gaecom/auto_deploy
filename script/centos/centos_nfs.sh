@@ -1,4 +1,5 @@
 #!/bin/bash
+. common.sh
 service rpcbind start
 yum -y install nfs-utils
 #if error occur,use the following command

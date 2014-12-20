@@ -1,9 +1,6 @@
 #!/bin/bash
-. pkgs.sh
+#set -e -v
 . common.sh
-
-set -e -v
-z_init_env
 z_add_sysuser www
 geodir=/home/wwwroot/geodata
 prefix=/usr/local/nginx

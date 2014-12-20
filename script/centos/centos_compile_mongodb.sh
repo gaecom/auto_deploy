@@ -1,9 +1,6 @@
 #!/bin/bash
 #note:compile will take long time
-. pkgs.sh
 . common.sh
-. config.sh
-z_init_env
 cd_pkg $mongodb
 
 scons all

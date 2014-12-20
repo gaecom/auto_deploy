@@ -1,4 +1,5 @@
 #!/bin/bash
+. common.sh
 usage="rsync_client.sh  host user pwdfile srcdir test(section name in remote server rsyncd.conf)\notice:1.pwdfile's perm must be 600\n  2.server user should have permission  operate its file"
 [ $# -lt 5 ] && echo -e $usage && exit
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin

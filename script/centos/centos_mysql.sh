@@ -7,10 +7,7 @@
 #如果安装不了,cpan,进入cpan安装install YAML
 set -e -v
 . common.sh
-. pkgs.sh
-. config.sh
 
-z_init_env
 
 [ "`id -u mysql`" == "" ] && useradd  -r -s /sbin/nologin -M -U mysql
 

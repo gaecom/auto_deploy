@@ -2,12 +2,11 @@
 #config centos network
 #setup env
 
-. pkgs.sh
-. common.sh
+
 set -e -v
 
+. common.sh
 
-z_init_env
 
 # ######---------------------network setting
 #exit
@@ -200,6 +199,17 @@ yum -y install htop inotify-tools mlocate losf strace screen
 yum install ntp
 ntpdate us.pool.ntp.org
 cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-
-
-
+type chkfs
+if [ $? != 0 ];then
+cat ->> $HOME/.bashrc<<<EOF
+function chks2 {
+  ps -ef|grep [n]ginx  >/dev/null 2>&1 && echo "nginx running"
+  ps -ef|grep [m]emcache >/dev/null 2>&1 && echo "memcache running"
+  ps -ef|grep [m]ongod >/dev/null 2>&1 && echo "mongod running"
+  ps -ef|grep [p]hp-fpm >/dev/null 2>&1 && echo "php-fpm running"
+  ps -ef|grep [m]ysql >/dev/null 2>&1 && echo "mysql running"
+  ps -ef|grep [s]sl_video_server >/dev/null 2>&1 && echo "webrtc signal server running"
+ ps -ef|grep "org.elasticsearch.bootstrap">/dev/null 2>&1 && echo "elastic search runnging"
+}
+fi
+EOF
