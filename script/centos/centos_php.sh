@@ -7,9 +7,9 @@ setup_mode="pro"
 cur_dir=`pwd`
 echo -e "install php lib\n"
 
-yum -y install mlocate.x86_64 libssh2-devel.x86_64 openssl.x86_64 libssh2.x86_64 libxml2.x86_64 libxml2-devel.x86_64 libxslt libxslt-devel
-yum -y install libmcrypt.x86_64 libmcrypt-devel.x86_64  tidy.x86_64 libtidy.x86_64 libtidy-devel.x86_64 readline-devel
-yum -y install bzip2-devel.x86_64 libjpeg.x86_64  libXpm-devel.x86_64  libtool-ltdl-devel.x86_64 libvpx libvpx-devel  t1lib  t1lib-devel icu libicu-devel
+yum -y install mlocate libssh2-devel openssl libssh2 libxml2 libxml2-devel libxslt libxslt-devel libmemcached libmemcached-devel
+yum -y install libmcrypt libmcrypt-devel  tidy libtidy libtidy-devel readline-devel
+yum -y install libpng-devel libpng bzip2-devel libjpeg  libXpm-devel libtool-ltdl-devel libvpx libvpx-devel  t1lib  t1lib-devel icu libicu-devel
 
 
 rpm -qa|grep libmcrypt-devel || rpm -ivh $libmcryptDev
@@ -23,7 +23,13 @@ echo -e "install php \n"
 
 #install snmp
 inst_pkg $snmp
-
+## 必须安装RPMforge 在centos_minal中否则如libmcryp无法安装
+#
+#
+#
+#
+#
+#
 config_pkg  $php --with-libdir=lib64 --prefix=/usr/local --enable-fpm --with-layout=PHP --with-pear  --enable-calendar --enable-bcmath --with-gmp --enable-exif \
 --with-mcrypt --with-mhash --with-zlib --with-bz2 --enable-zip --enable-ftp --enable-mbstring --with-iconv --enable-intl --with-icu-dir=/usr --with-gettext \
 --with-pspell --enable-sockets --with-openssl --with-curl --with-curlwrappers --with-gd --enable-gd-native-ttf --with-jpeg-dir=/usr --with-png-dir=/usr \

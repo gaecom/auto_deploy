@@ -20,7 +20,7 @@ phpMongo=http://rypkg.oss-cn-hangzhou.aliyuncs.com/mongo-php-driver.tar.gz
 igbinary=http://pecl.php.net/get/igbinary-1.1.1.tgz
 phpMemcached=http://pecl.php.net/get/memcached-2.1.0.tgz
 
-snmp=http://nchc.dl.sourceforge.net/project/net-snmp/net-snmp/5.7.2/net-snmp-5.7.2.tar.gz
+snmp=http://rypkg.oss-cn-hangzhou.aliyuncs.com/net-snmp-5.7.2.tar.gz
 aspell=ftp://ftp.gnu.org/gnu/aspell/aspell-0.60.6.1.tar.gz
 
 
@@ -47,7 +47,7 @@ hiera=http://downloads.puppetlabs.com/mac/hiera-1.3.4.dmg
 libevent=http://rypkg.oss-cn-hangzhou.aliyuncs.com/libevent-2.0.13-stable.tar.gz
 
 libmemcached=http://rypkg.oss-cn-hangzhou.aliyuncs.com/libmemcached-1.0.18.tar.gz
-yaf=http://rypkg.oss-cn-hangzhou.aliyuncs.com/yaf-2.3.2.tgz
+yaf=http://rypkg.oss-cn-hangzhou.aliyuncs.com/yaf-2.3.3.tar.gz
 pcre=http://rypkg.oss-cn-hangzhou.aliyuncs.com/pcre-8.12.tar.gz
 
 
@@ -60,3 +60,7 @@ es=https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-
 
 kibana3=https://download.elasticsearch.org/kibana/kibana/kibana-3.1.2.tar.gz
 logstash=https://download.elasticsearch.org/logstash/logstash/logstash-1.4.2.tar.gz
+
+collectd=https://collectd.org/files/collectd-5.4.2.tar.bz2
+
+driver_foo2zjs=http://rypkg.oss-cn-hangzhou.aliyuncs.com/drivers/foo2zjs.tar.gz

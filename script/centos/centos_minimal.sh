@@ -133,8 +133,8 @@ inst_pkg $libunwind
 ldconfig
 
 config_pkg $gperftools 
-CFLAGS=-fPIC ./configure --prefix=/usr
-make CFLAGS=-fpic
+CFLAGS=-fPIC ./configure --prefix=/usr --enable-frame-pointers 
+make CFLAGS=-fpic 
 make CFLAGS=-fPIC install
 ldconfig
 cd ..
@@ -211,5 +211,22 @@ function chks2 {
   ps -ef|grep [s]sl_video_server >/dev/null 2>&1 && echo "webrtc signal server running"
  ps -ef|grep "org.elasticsearch.bootstrap">/dev/null 2>&1 && echo "elastic search runnging"
 }
+function diag2 {
+  local sock=$(cat /proc/net/sockstat)
+  echo -e "Socket info:\n $sock"
+  echo -e "vmstate info:\n `vmstat`"
+  echo -e "opened files:\n `sysctl -a | grep file`"
+  echo -e "MEM :\n `free -m`"
+
+}
+
+function nets2 {
+  [ $# -lt 1 ] && echo "$0 port" && return
+   echo "Tcp status:"
+  local ret=$(netstat -nat|grep -i "$1"|grep ESTABLISHED|wc -l)
+   echo "ESTABLISHED:$ret"
+   netstat -n | grep -i "$1" | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
+}
+
 fi
 EOF

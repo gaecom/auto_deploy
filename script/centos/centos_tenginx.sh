@@ -23,8 +23,11 @@ mkdir -p $PROXY_TEMP
 mkdir -p $FCGI_TEMP
 
 mkdir -p /etc/nginx/vhost
+if [ -f /etc/nginx/nginx.conf ];then
+
 sed -i '$d' /etc/nginx/nginx.conf
 echo -e "include vhost/e_*.conf;\n}">>/etc/nginx/nginx.conf
+fi
 
 
 
