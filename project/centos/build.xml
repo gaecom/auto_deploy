@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<project name="Centos" basedir="." default="dist">  
+
+    <property file="build.properties" />  
+    <property name="build" location="build" />  
+    <property name="dist" location="dist" />  
+    <property name="commonLocation" location="../../common" />  
+    <property name="lib.dir" location="WebRoot/WEB-INF/lib" />  
+    <property name="centos_dir" location="../../script/centos" /> 
+ <property name="pkg_dir" location="../../packages" /> 
+    <target name="init" description="make dir">  
+        <!-- Create the time stamp -->  
+        <tstamp />  
+        <!-- Create the build directory structure used by compile -->  
+        <mkdir dir="${dist}" />  
+   
+    </target>  
+    <target name="dumpsql" description="">  
+
+        <exec executable="mysqldump" dir="${PROJDIR}">
+        <arg line="-u${ns_mysql_root} -p{ns_mysql_pwd} ${ns_db}>${build}/${ns_db}.sql"/>
+       
+      </exec>
+
+    </target> 
+    <target name="clean" description="clean up">  
+        <!-- Delete the ${build} and ${dist} directory trees -->  
+        <delete dir="${build}" />  
+        <delete dir="${dist}" /> 
+
+        <delete file="${project.name}.tar.gz" /> 
+    </target>  
+  
+    <target name="dist" description="copy common assets" depends="init,clean">  
+
+ 
+       
+         <copy file="${pkg_dir}/${pkg_1}" todir="${build}"/>
+       
+  
+        <!-- Create the time stamp -->  
+          <copy todir="${build}">  
+            <fileset dir="${commonLocation}">  
+               <include name="common.sh" />  
+               <include name="pkgs.sh" /> 
+            </fileset>  
+            <fileset dir=".">  
+               <include name="**/**" />  
+               <exclude name="*.xml" /> 
+             <exclude name="*.properties" /> 
+            </fileset>  
+              <fileset dir="${centos_dir}">  
+               <include name="centos_*.sh" />  
+            </fileset>  
+
+        </copy>  
+  <tar destfile="${project.name}.tar">
+  <tarfileset dir="${build}">
+     <include name="**/**" />  
+   		<exclude name="*.xml" /> 
+    	<exclude name="*.properties" /> 
+  </tarfileset>
+   <tarfileset dir=".">
+  <include name="**/**" /> 
+   <exclude name="*.xml" /> 
+    <exclude name="build/**" /> 
+    <exclude name="*.properties" /> 
+  </tarfileset>
+</tar>
+ <gzip src="${project.name}.tar" destfile="${project.name}.tar.gz"/>
+   <delete file="${project.name}.tar"/>
+  </target> 
+  
+</project>
