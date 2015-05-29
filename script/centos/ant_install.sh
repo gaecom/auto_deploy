@@ -1,6 +1,5 @@
 #/bin/bash
-. config.sh
-. pkgs.sh
+
 . common.sh
 
  

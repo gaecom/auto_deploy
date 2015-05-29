@@ -894,11 +894,11 @@ Invoking ant with the following command line:
    <redirector output="myfile.txt" alwayslog="true"/>           
 </exec>
 
-### ant exec task中带双引号的参数
+### ant exec task中带双引号的参数,按照xml和html格式,使用实体字符,特别是在exec的arg中要用<,>需用实体字符
 1. 可以使用<arg value
-2. xml文件中使用&quot;表示引号
-
-
+2. xml文件中使用&quot;表示引号,小于号&lt;  &gt;
+3  property只能定义一次不能覆盖
+##
 
 
 ### As you pointed out, first the line the the 'a2' will be selected. The tokenfilter then replaces a2 and the colon with nothing. Hope that helps.
@@ -947,4 +947,64 @@ Groups the same files as the top example, but using the <filename> selector.
 
     <scp todir="user:password@somehost:/home/chuck/">
     <fileset dir="src_dir"/>
-  </scp>
+  </scp>\
+
+
+### basename,dirname
+> suffix The suffix to remove from the resulting basename
+```ant
+  <basename property="cmdname" file="D:/usr/local/foo.exe"
+          suffix=".exe"/>
+
+  <dirname property="antfile.dir" file="${ant.file}"/>  
+
+```          
+
+
+### implement if/else
+```ant
+<project name="if.test" default="doIt">
+
+    <target name="doIt" depends="-doIt.init, -test, -prod, -dev, -else"></target>
+
+    <target name="-doIt.init">
+        <condition property="do.test">
+            <equals arg1="${env}" arg2="test" />
+        </condition>
+        <condition property="do.prod">
+            <equals arg1="${env}" arg2="prod" />
+        </condition>
+        <condition property="do.dev">
+            <equals arg1="${env}" arg2="dev" />
+        </condition>
+        <condition property="do.else">
+            <not>
+                <or>
+                <equals arg1="${env}" arg2="test" />
+                <equals arg1="${env}" arg2="prod" />
+                <equals arg1="${env}" arg2="dev" />
+                </or>
+            </not>
+        </condition>
+    </target>
+
+    <target name="-test" if="do.test">
+        <echo>this target will be called only when property $${do.test} is set</echo>
+    </target>
+
+    <target name="-prod" if="do.prod">
+        <echo>this target will be called only when property $${do.prod} is set</echo>
+    </target>
+
+    <target name="-dev" if="do.dev">
+        <echo>this target will be called only when property $${do.dev} is set</echo>
+    </target>
+
+    <target name="-else" if="do.else">
+        <echo>this target will be called only when property $${env} does not equal test/prod/dev</echo>
+    </target>
+
+</project>
+```
+### ant script 注意 要用转义
+var domains = project.getProperty('deploy_domain').split('\\.')
