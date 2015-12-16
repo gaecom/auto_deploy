@@ -5,19 +5,25 @@ set -e -v
 . common.sh
 
 cd_pkg $mongodb
+
+
+dataDir=/data/var/db/mongodb/
+logDir=/data/var/log/mongodb
+
 mkdir2 /usr/local/mongodb
-mkdir2 /var/log/mongodb
-mkdir2 /var/db/mongodb
+mkdir2 $logDir
+
+mkdir2 $dataDir
 
 cp -r bin /usr/local/mongodb
-ln -s /usr/local/mongodb/bin/mongod /usr/bin/mongod
+ln -s -f /usr/local/mongodb/bin/mongod /usr/bin/mongod
 
 
 z_add_sysuser mongo
 
 
-chown -R mongo /var/log/mongodb
-chown -R mongo /var/db/mongodb
+chown -R mongo $logDir
+chown -R mongo $dataDir
 
 NAME=mongod
 
@@ -41,12 +47,12 @@ if [ -f /etc/sysconfig/mongodb ]; then
 fi
 
 prog="mongod"
-mongod="/usr/local/mongodb/bin/mongod"
+mongod="/usr/local/bin/mongod"
 RETVAL=0
 
 start() {
 echo -n $"Starting $prog: "
-$mongod --auth --logpath=/var/log/mongodb.log --logappend 2>&1 --slowms=50 --master --dbpath=/var/db/mongodb &
+$mongod --auth --logpath=/data/var/log/mongodb/mongodb.log --logappend 2>&1 --slowms=50 --master --dbpath=/data/var/db/mongodb/ &
 RETVAL=$?
 echo
 [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$prog
@@ -111,3 +117,4 @@ mongo admin /tmp/f.js
 mongo wrtc /tmp/f.js
 sed -i '/^#auth/s/#//' /etc/mongod.conf
 service mongod restart
+

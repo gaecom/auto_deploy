@@ -632,9 +632,69 @@ function str_replace_in_file () {
     printf ",s/$ORIG/$DEST/g\nw\nQ" | ed -s "$FILE" > /dev/null 2>&1
     return "$?"
 }
+get_dir() {
+    local pkgDir="."
+    #usage:iPkg2 pkgurl pkgname option(opt)
+    declare -A cmds=([gz]="tar xvzf" [tgz]="tar xvzf" [zip]="unzip" [bz2]="tar xvjf")
+    [ $# -lt 1 ] && echo "parameters less than 1"  && return 1 && exit
+    local installurl=$1
+    local installfile=''
+    local installdir=''
+
+    [[ $pkgDir = --* ]] && pkgDir="."
+
+    [[ $2 = *.gz || $2 = *.bz2 || $2 = *.zip || $2 = *.tgz ]] && installfile=$2 && shift
+    shift
+    [ -z $installfile ] && installfile=`basename $installurl`
+    local options="$@"
+
+    
+
+
+    ext=${installfile##*.}
+
+    [ ! -e $pkgDir/$installfile ] && curl -C - -k -L  "$installurl"   -o $pkgDir/$installfile
+ 
+
+
+   [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
+   [[ ! -z ${cmds[$ext]} ]] && ${cmds[$ext]} $installfile > /dev/nul
+
+   # installdir=`tar --exclude='*/*' -tf $installfile`
+   
+   if [ $ext == 'zip' ];then
+   installdir="`unzip -v $installfile | grep /|head -1|awk '{print $8}'`"
+   elif [[ $ext == 'gz' || $ext == 'tgz' || $ext == 'bz2' ]];then
+   installdir="`tar  -tf $installfile|grep /|head -1`"
+   [[ "$installdir" = .* ]] && installdir="`tar  -tf $installfile|grep /|head -1`"
+   [[ "$installdir" = .* ]] && installdir="`tar  -tf $installfile|grep /|head -2|tail -1`"
+   [[ "$installdir" = .* ]] && installdir="`tar  -tf $installfile|grep /|head -3|tail -1`"
+   
+
+   local installLastdir="`tar  -tf $installfile|grep /|tail -1`"
+   local  instDir2="`echo $installdir|cut -d/ -f1`"
+   local  instLastDir2="`echo $installLastdir|cut -d/ -f1`"
+  
+   if [[ "$instDir2" != "$instLastDir2" && -e "./config.m4" ]];then
+        installdir="."
+      else
+
+      installdir="${installdir%%/*}"
+
+      if [ "$instDir2" == "." ];then
+
+      installdir=`echo "$installdir"|cut -d/ -f2`
+      fi
+   fi
+    
+   fi
+
+   echo $installdir
+
+}
 download_pkg(){
 
-pkgDir=${PKGDIR:-.}
+    pkgDir=${PKGDIR:-.}
 #usage:iPkg2 pkgurl pkgname option(opt)
     declare -A cmds=([gz]="tar xvzf" [tgz]="tar xvzf" [zip]="unzip" [bz2]="tar xvjf")
     [ $# -lt 1 ] && msg_alert "parameters less than 1"  && return 1
@@ -704,165 +764,61 @@ dezip_pkg(){
 
 }
 config_pkg(){
-     pkgDir=${PKGDIR:-.}
-    declare -A cmds=([gz]="tar xvzf" [tgz]="tar xvzf" [zip]="unzip" [bz2]="tar xvjf")
-    [ $# -lt 1 ] && msg_alert "parameters less than 1"  && return 1
-    local installurl=$1
-    local installfile=''
-    local installdir=''
-    [[ $2 = *.gz || $2 = *.bz2 || $2 = *.zip || $2 = *.tgz ]] && installfile=$2 && shift
-    shift
-    [ -z $installfile ] && installfile=`basename $installurl`
-    options="$@"
-
-    echo "installurl $installurl $installfile"
-
-
-    ext=${installfile##*.}
-
-    [ ! -e $pkgDir/$installfile ] && curl -C - -k -L   "$installurl" -o $pkgDir/$installfile
-    echo -e "start install $installfile....\n"
-    [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
-
-   [[ ! -z ${cmds[$ext]} ]] && ${cmds[$ext]} $installfile
-   # installdir=`tar --exclude='*/*' -tf $installfile`
- if [ $ext == 'zip' ];then
-   installdir=`unzip -v $installfile | grep /|head -1|awk '{print $8}'`
-   elif [[ $ext == 'gz' || $ext == 'tgz' || $ext == 'bz2' ]];then
-   installdir=`tar  -tf $installfile|grep /|head -1`
-   installLastdir=`tar  -tf $installfile|grep /|tail -1`
-   instDir2=`echo $installdir|cut -d/ -f1`
-   instLastDir2=`echo $installLastdir|cut -d/ -f1`
-   if [ "$instDir2" != "$instLastDir2" ];then
-        installdir="."
-      else
-
-      installdir=${installdir%%/*}  
-      if [ $instDir2 == "." ];then
-
-      installdir="`echo $installdir|cut -d/ -f2`"
-      fi
-   fi
-    
-   fi
-  
+    local installdir=`get_dir $@` 
     cd $installdir
+    
+    echo "install dir $installdir zzz"
+
+ 
+        [[ $2 = *.gz || $2 = *.bz2 || $2 = *.zip || $2 = *.tgz ]] && shift
+    shift
+    local options="$@"
     set +e
     #[ -e "configure.ac" ] &&  autoreconf -fvi
-     [ -e "configure.ac" ] &&  autoreconf -fvi >/dev/nul 2&>1
-    [ -e "config.m4" ] && [[ ! -z `grep -E "PHP_" config.m4` ]] && phpize >/dev/nul 2&>1
+     [ -e "configure.ac" ] &&  autoreconf -fvi >/dev/nul 2>&1
+    [ -e "config.m4" ] && [[ ! -z `grep -E "PHP_" config.m4` ]] && phpize >/dev/nul 2>&1
     ./configure $options 
    
-set -e -v
+   set  -v
 }
 cd_pkg(){
- pkgDir=${PKGDIR:-.}
-     declare -A cmds=([gz]="tar xvzf" [tgz]="tar xvzf" [zip]="unzip" [bz2]="tar xvjf")
-    [ $# -lt 1 ] && msg_alert "parameters less than 1"  && return 1
-    local installurl=$1
-    local installfile=''
-    local installdir=''
-    [[ $2 = *.gz || $2 = *.bz2 || $2 = *.zip || $2 = *.tgz ]] && installfile=$2 && shift
-    shift
-    [ -z $installfile ] && installfile=`basename $installurl`
-    options="$@"
-
-    echo "installurl $installurl $installfile"
-
-
-    ext=${installfile##*.}
-
-  
-
-   
-    [ ! -e $pkgDir/$installfile ] && curl -C - -k -L   "$installurl" -o $pkgDir/$installfile
-    echo -e "start install $installfile....\n"
-
-
-   [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
-   [[ ! -z ${cmds[$ext]} ]] && ${cmds[$ext]} $installfile
-
-   # installdir=`tar --exclude='*/*' -tf $installfile`
-   if [ $ext == 'zip' ];then
-   installdir=`unzip -v $installfile | grep /|head -1|awk '{print $8}'`
-   elif [[ $ext == 'gz' || $ext == 'tgz' || $ext == 'bz2' ]];then
-   installdir=`tar  -tf $installfile|grep /|head -1`
-   installLastdir=`tar  -tf $installfile|grep /|tail -1`
-   instDir2=`echo $installdir|cut -d/ -f1`
-   instLastDir2=`echo $installLastdir|cut -d/ -f1`
-   if [ "$instDir2" != "$instLastDir2" ];then
-        installdir="."
-      else
-
-      installdir=${installdir%%/*}  
-      if [ $instDir2 == "." ];then
-
-      installdir="`echo $installdir|cut -d/ -f2`"
-      fi
-   fi
-    
-   fi
-    set +e
+ installdir=`get_dir $@`
+ echo "curdir is $installdir"
+ cd $installdir
 
 }
+
 inst_pkg()
 {
-     pkgDir=${PKGDIR:-.}
-    #usage:iPkg2 pkgurl pkgname option(opt)
-    declare -A cmds=([gz]="tar xvzf" [tgz]="tar xvzf" [zip]="unzip" [bz2]="tar xvjf")
-    [ $# -lt 1 ] && msg_alert "parameters less than 1"  && return 1 && exit
-    local installurl=$1
-    local installfile=''
-    local installdir=''
-    [[ $2 = *.gz || $2 = *.bz2 || $2 = *.zip || $2 = *.tgz ]] && installfile=$2 && shift
-    shift
-    [ -z $installfile ] && installfile=`basename $installurl`
-    options="$@"
-
-    echo "installurl $installurl $installfile"
+ 
 
 
-    ext=${installfile##*.}
-
-    [ ! -e $pkgDir/$installfile ] && curl -C - -k -L  "$installurl"   -o $pkgDir/$installfile
-    echo -e "start install $installfile....\n"
-
-
-   [ ! -e $installfile ] && cp $pkgDir/$installfile $installfile
-   [[ ! -z ${cmds[$ext]} ]] && ${cmds[$ext]} $installfile
-
-   # installdir=`tar --exclude='*/*' -tf $installfile`
-   if [ $ext == 'zip' ];then
-   installdir=`unzip -v $installfile | grep /|head -1|awk '{print $8}'`
-   elif [[ $ext == 'gz' || $ext == 'tgz' || $ext == 'bz2' ]];then
-   installdir=`tar  -tf $installfile|grep /|head -1`
-   installLastdir=`tar  -tf $installfile|grep /|tail -1`
-   instDir2=`echo $installdir|cut -d/ -f1`
-   instLastDir2=`echo $installLastdir|cut -d/ -f1`
-   if [ "$instDir2" != "$instLastDir2" ];then
-        installdir="."
-      else
-
-      installdir=${installdir%%/*}  
-      if [ $instDir2 == "." ];then
-
-      installdir="`echo $installdir|cut -d/ -f2`"
-      fi
-   fi
-    
-   fi
-    set +e
+    local installdir=`get_dir $@` 
     cd $installdir
-    [ -e "configure.ac" ] &&  autoreconf -fvi >/dev/nul 2&>1
-    [ -e "config.m4" ] && [[ ! -z `grep -E "PHP_" config.m4` ]] && phpize >/dev/nul 2&>1
+    
+    echo "install dir $installdir zzz"
+     
+    local options=""
+    [[ $2 = *.gz || $2 = *.bz2 || $2 = *.zip || $2 = *.tgz ]] && shift
+    shift
+     options="$@"
+
+
+    echo `pwd`
+
+
+    [ -e "configure.ac" ] &&  autoreconf -fvi >/dev/nul 2>&1
+    [ -e "config.m4" ] && [[ ! -z `grep -E "PHP_" config.m4` ]] && echo "phpize" && phpize >/dev/nul 2>&1
+    echo "ZZZZZZ",$options,"ZZZZ"
     ./configure $options 
     make
-    sudo make install
-    sudo ldconfig
-    msg_notice "finish installing $installfile....\n"
+    make install
+    ldconfig
+    
+    echo "finish installing $installfile....\n"
     cd ..
     echo $installdir
-    set -e -v
+    
 }
 mkdir2(){
     [ ! -e "$1" ] && mkdir -p $1
@@ -997,5 +953,24 @@ inst_jdk8() {
     echo "export CLASSPATH=$jdkdir/lib/dt.jar:$jdkdir/lib/tools.jar">>$HOME/.bashrc
     echo "export PATH=$PATH:$jdkdir/bin">>$HOME/.bashrc
 }
+
+
+function yum {
+
+  local pkg1=`echo "$@"|awk '{print $2}'`
+  local pkg2=`echo "$@"|awk '{print $3}'`
+   
+  ret1=0
+  ret2=0
+  if [[ ! -z "`rpm -qa|grep $pkg1`" ]];then
+    ret1=1
+  fi
+  if [[ ! -z "`rpm -qa|grep $pkg2`" ]];then 
+    ret2=1
+  fi
+  [[ $ret1 == 1 && $ret2 == 1 ]] && return 0
+  /bin/yum $@
+}
 init
 z_init_env
+

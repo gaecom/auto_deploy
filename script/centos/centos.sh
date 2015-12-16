@@ -10,6 +10,7 @@
 ./centos_memcached.sh
 
 ./centos_compile_mongodb.sh
+
 ./centos_gearman.sh
 ./centos_node.sh
 ./centos_redis.sh

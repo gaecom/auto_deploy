@@ -114,3 +114,4 @@ NG2
 chmod +x /etc/init.d/$NAME
 chkconfig --add $NAME
 chkconfig --level 345 $NAME on
+systemctl enable memcached.service

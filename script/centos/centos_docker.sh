@@ -5,3 +5,6 @@
 
 yum update
 yum install docker-io
+
+
+

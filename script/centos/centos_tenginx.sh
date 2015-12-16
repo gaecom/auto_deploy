@@ -30,22 +30,29 @@ echo -e "include vhost/e_*.conf;\n}">>/etc/nginx/nginx.conf
 fi
 
 
+geostr=""
 
-echo "install geo libs"
-wget -c $geoCityLib
-wget -c $geoIp
-[ ! -d  $geodir ] && mkdir -p $geodir
+function inst_geo {
+	echo "install geo libs"
+	wget -c $geoCityLib
+	wget -c $geoIp
+	[ ! -d  $geodir ] && mkdir -p $geodir
+	inst_pkg $geoipclib
+	geostr="--with-http_geoip_module=shared "
+}
 
+
+#--with-http_geoip_module=shared \
 # mv GeoLiteCity.dat.gz $geodir
 # mv GeoIP.dat.gz  $geodir
 # gzip -d   $geodir/GeoLiteCity.dat.gz
 
 
 
-inst_pkg $geoipclib
 
 
-inst_pkg $tenginx --with-http_geoip_module=shared \
+
+inst_pkg $tenginx $geostr \
 --prefix=$prefix \
 --sbin-path=/usr/bin \
 --conf-path=$CONFIGFILE \
@@ -142,6 +149,7 @@ chmod +x /etc/init.d/$NAME
 chkconfig --add $NAME 
 chkconfig --level 345 $NAME on
 
+systemctl enable nginx.service
 
 #chkconfig --level 345 nginx on
 #update-rc.d -f nginx defaults

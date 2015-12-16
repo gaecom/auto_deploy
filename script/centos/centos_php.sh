@@ -3,7 +3,7 @@
 set -e -v
 . common.sh
 
-setup_mode="pro"
+setup_mode="deploy"
 cur_dir=`pwd`
 echo -e "install php lib\n"
 
@@ -17,35 +17,48 @@ rpm -qa|grep libmcrypt-devel || rpm -ivh $libmcryptDev
 rpm -qa|grep libmcrypt || rpm -ivh $libmcrypt
 ldconfig
 echo -e "finish installing php lib\n"
-inst_pkg $aspell
+[ ! -f "/usr/local/lib/libaspell.so" ] && inst_pkg $aspell
 ldconfig
 echo -e "install php \n"
 
 #install snmp
-inst_pkg $snmp
+#inst_pkg $snmp
 ## 必须安装RPMforge 在centos_minal中否则如libmcryp无法安装
 #
 #
 #
 #
 #
-#
-config_pkg  $php --with-libdir=lib64 --prefix=/usr/local --enable-fpm --with-layout=PHP --with-pear  --enable-calendar --enable-bcmath --with-gmp --enable-exif \
---with-mcrypt --with-mhash --with-zlib --with-bz2 --enable-zip --enable-ftp --enable-mbstring --with-iconv --enable-intl --with-icu-dir=/usr --with-gettext \
---with-pspell --enable-sockets --with-openssl --with-curl --with-curlwrappers --with-gd --enable-gd-native-ttf --with-jpeg-dir=/usr --with-png-dir=/usr \
---with-zlib-dir=/usr --with-xpm-dir=/usr --with-vpx-dir=/usr --with-freetype-dir=/usr --with-t1lib=/usr --with-libxml-dir=/usr --with-mysql=mysqlnd --with-mysqli=mysqlnd \
---with-pdo-mysql=mysqlnd --enable-soap --with-xmlrpc --with-xsl --with-tidy=/usr --with-readline --enable-pcntl --enable-sysvshm --enable-sysvmsg --enable-shmop --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-snmp
+# --with-snmp
+# 
+which php-fpm
+if [  $? != 0 ];then
+inst_php
+conf_php	
+fi	
+function inst_php {
 
-echo -e "install php end \n"
-if [ -z "pwd|grep 5.6" ];then
-make ZEND_EXTRA_LIBS='-liconv'
-else 
-make
-fi
-make install
+	config_pkg  $php --with-libdir=lib64 --prefix=/usr/local --enable-fpm --with-layout=PHP --with-pear  --enable-calendar --enable-bcmath --with-gmp --enable-exif \
+	--with-mcrypt --with-mhash --with-zlib --with-bz2 --enable-zip --enable-ftp --enable-mbstring --with-iconv --enable-intl --with-icu-dir=/usr --with-gettext \
+	--with-pspell --enable-sockets --with-openssl --with-curl --with-curlwrappers --with-gd --enable-gd-native-ttf --with-jpeg-dir=/usr --with-png-dir=/usr \
+	--with-zlib-dir=/usr --with-xpm-dir=/usr --with-vpx-dir=/usr --with-freetype-dir=/usr --with-t1lib=/usr --with-libxml-dir=/usr --with-mysql=mysqlnd --with-mysqli=mysqlnd \
+	--with-pdo-mysql=mysqlnd --enable-soap --with-xmlrpc --with-xsl --with-tidy=/usr --with-readline --enable-pcntl --enable-sysvshm --enable-sysvmsg --enable-shmop --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc
 
-rm -f /usr/bin/php
+	echo -e "install php end \n"
+	if [ -z "`pwd`|grep 5.6" ];then
+	make ZEND_EXTRA_LIBS='-liconv'
+	else 
+	make
+	fi
+	make install
+	
+
+}
+function conf_php {
+	rm -f /usr/bin/php
 ln -s -f /usr/local/php/bin/php /usr/bin/php
+ln -s -f /usr/local/php/sbin/php-fpm /usr/local/sbin/php-fpm
+ln -s -f /usr/local/php/sbin/php-fpm /usr/local/bin/php-fpm
 ln -s -f  /usr/local/php/bin/phpize /usr/bin/phpize
 ln -s -f  /usr/local/php/sbin/php-fpm /usr/bin/php-fpm
 echo "Copy new php configure file."
@@ -105,32 +118,58 @@ pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 3
 EOC
-cd $cur_dir
-echo "install php extensions"
-inst_pkg "$xdebug" --enable-xdebug
-inst_pkg "$phpRedis"
-
-inst_pkg "$libmemcached"
-inst_pkg "$igbinary"
-inst_pkg "$phpMemcached"  --enable-memcached-igbinarynary
-
-inst_pkg "$phpMongo"
-inst_pkg "$yaf" yaf.tgz
-
-inst_pkg "$phpGearman"
-
 
 echo "zend_extension=xdebug.so">>/etc/php.ini
 echo "extension=gearman.so">>/etc/php.ini
 echo "extension=memcached.so">>/etc/php.ini
 echo "extension=redis.so">>/etc/php.ini
+echo "extension=swoole.so">>/etc/php.ini
 echo "extension=mongo.so">>/etc/php.ini
+echo "extension=igbinary.so">>/etc/php.ini
 echo "extension=yaf.so">>/etc/php.ini
 echo "yaf.use_namespace=1">>/etc/php.ini
+
+
+
+
+
+cd $cur_dir
+echo "install php extensions"
+
+[ -z "`2>&1  php -m|grep -v "Warning"|grep yaf`" ] && inst_pkg "$yaf" yaf.tgz
+
+
+
+[ -z "`2>&1  php -m|grep -v "Warning"|grep xdebug`" ] && inst_pkg "$xdebug" --enable-xdebug  --enable-opcache
+
+
+[ -z "`2>&1  php -m|grep -v "Warning"|grep redis`" ] &&  inst_pkg "$phpRedis"
+
+
+[[ -z "`rpm -qa|grep libmemcached`" ]] &&  inst_pkg "$libmemcached"
+
+
+[ -z "`2>&1  php -m|grep -v "Warning"|grep igbinary`" ] &&  inst_pkg "$igbinary"
+
+[ -z "`2>&1  php -m|grep -v "Warning"|grep memcache`" ]  &&   inst_pkg "$phpMemcached"  --enable-memcached-igbinarynary
+
+
+
+
+[ -z "`2>&1  php -m|grep -v "Warning"|grep mongo`" ]  &&   inst_pkg "$phpMongo"
+
+
+[ -z "`2>&1  php -m|grep -v "Warning"|grep gearman`" ]   && yum -y install libgearman-devel  &&  inst_pkg "$phpGearman"
+
+
+[ -z "`2>&1  php -m|grep -v "Warning"|grep swoole`" ]  &&   inst_pkg "$swoole"
+
+
 #file:///home/chjade/Downloads/webgrind-release-1.0.zip
+#
 #sqlbuddy
-if [ "$setup_mode" == "dev" ];then
-echo -e "install php package \n"
+function inst_php_ext {
+	echo -e "install php package \n"
 sleep 2
 echo -e "install php phing \n"
 pear channel-discover pear.phing.info
@@ -153,6 +192,9 @@ pear install bovigo/vfsStream-beta
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
 composer self-update
+}
+if [ "$setup_mode" == "dev" ];then
+inst_php_ext
 
 #install memcached
 #memcached=https://launchpadlibrarian.net/135986673/libmemcached-1.0.17.tar.gz

@@ -5,7 +5,7 @@
 #perl -MCPAN -e 'install DBD::mysql'
 #perl -MCPAN -e 'install YAML'
 #如果安装不了,cpan,进入cpan安装install YAML
-set -e -v
+set -v
 . common.sh
 
 
@@ -22,6 +22,7 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 # rpmbuild -bp ~/rpmbuild/SPECS/*.spec
 
 cd_pkg $mysql
+echo "cur dir is `pwd`"
 ##make patch
 #sed  -i 's#\(pfs_connect_attr-t.*\) ${ZLIB_LIBRARY}#\1 z#' storage/perfschema/unittest/CMakeLists.txt
 #rpmbuild --rebuild --clean $filename
@@ -123,7 +124,7 @@ fi
 cd /usr/local/mysql
 /usr/local/mysql/scripts/mysql_install_db --user=mysql --datadir=$datadir
 chown -R mysql:mysql $mysqldir
-mv /etc/my.cnf /etc/my.cnf.bk
+mv -f /etc/my.cnf /etc/my.cnf.bk
 scripts/mysql_install_db --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --user=mysql
 
 
@@ -138,16 +139,16 @@ cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql
 # else
 # sed -i -e 's#socket=.*#socket=/tmp/mysql.sock#'  -e 's#datadir=.*#datadir=/usr/local/mysql/data#' /etc/my.cnf
 # fi
-ln -s /usr/local/mysql/bin/mysqld_safe /usr/bin/mysqld_safe
-ln -s /usr/local/mysql/bin/mysql /usr/bin/mysql
-ln -s /usr/local/mysql/bin/mysqldump /usr/bin/mysqldump
-ln -s /usr/local/mysql/bin/mysqladmin /usr/bin/mysqladmin
+ln -s -f /usr/local/mysql/bin/mysqld_safe /usr/bin/mysqld_safe
+ln -s  -f /usr/local/mysql/bin/mysql /usr/bin/mysql
+ln -s -f /usr/local/mysql/bin/mysqldump /usr/bin/mysqldump
+ln -s -f /usr/local/mysql/bin/mysqladmin /usr/bin/mysqladmin
 service mysql start
-read -p "new mysql password" pwd
-mysqladmin -uroot -p"" password $pwd
+
+mysqladmin -uroot -p"" password $MYSQL_PWD
 
 
-
+systemctl enable mysql.service
 
 
 

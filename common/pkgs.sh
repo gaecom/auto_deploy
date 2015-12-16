@@ -6,7 +6,7 @@ libunwind=http://rypkg.oss-cn-hangzhou.aliyuncs.com/libunwind-1.1.tar.gz
 gperftools=http://rypkg.oss-cn-hangzhou.aliyuncs.com/gperftools-2.1.zip
 #https://gperftools.googlecode.com/files/gperftools-2.1.zip
 mongodb=https://fastdl.mongodb.org/src/mongodb-src-r2.6.5.tar.gz
-php=http://cn2.php.net/distributions/php-5.6.3.tar.bz2
+php=http://cn2.php.net/distributions/php-5.6.16.tar.bz2
 geoipclib=http://geolite.maxmind.com/download/geoip/api/c/GeoIP.tar.gz
 tenginx=http://tengine.taobao.org/download/tengine-2.0.3.tar.gz
 geoCityLib=http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
@@ -16,7 +16,7 @@ xdebug=http://xdebug.org/files/xdebug-2.2.3.tgz
 phpRedis=https://github.com/nicolasff/phpredis/archive/master.zip
 phpMongo=http://rypkg.oss-cn-hangzhou.aliyuncs.com/mongo-php-driver.tar.gz
 #for centos 6.4+ x64 only 1.0.16 can be compiled successfully
-
+swoole=https://pecl.php.net/get/swoole-1.7.17.tgz
 igbinary=http://pecl.php.net/get/igbinary-1.1.1.tgz
 phpMemcached=http://pecl.php.net/get/memcached-2.1.0.tgz
 
@@ -41,13 +41,13 @@ ant="http://mirror.bit.edu.cn/apache//ant/binaries/apache-ant-1.9.4-bin.tar.gz"
 facter=http://downloads.puppetlabs.com/mac/facter-2.2.0.dmg 
 puppet=http://downloads.puppetlabs.com/mac/puppet-3.7.1.dmg
 hiera=http://downloads.puppetlabs.com/mac/hiera-1.3.4.dmg
-
+swoole=http://pecl.php.net/get/swoole-1.7.21.tgz
 #libevent=https://github.com/downloads/libevent/libevent/libevent-2.0.21-stable.tar.gz
 
 libevent=http://rypkg.oss-cn-hangzhou.aliyuncs.com/libevent-2.0.13-stable.tar.gz
 
 libmemcached=http://rypkg.oss-cn-hangzhou.aliyuncs.com/libmemcached-1.0.18.tar.gz
-yaf=http://rypkg.oss-cn-hangzhou.aliyuncs.com/yaf-2.3.3.tar.gz
+yaf=http://pecl.php.net/get/yaf-2.3.5.tgz
 pcre=http://rypkg.oss-cn-hangzhou.aliyuncs.com/pcre-8.12.tar.gz
 
 

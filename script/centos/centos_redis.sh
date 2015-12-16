@@ -24,13 +24,16 @@ function install_redis {
             make CFLAGS="-march=i686" PREFIX=/usr/local/redis install
     fi
     mkdir -p /usr/local/redis/etc/
-    cp redis.conf  /usr/local/redis/etc/
+    /bin/cp -Rf redis.conf  /usr/local/redis/etc/
     sed -i 's/daemonize no/daemonize yes/g' /etc/redis/6379.conf
     echo "requirepass $redis_pwd">>/etc/redis/6379.conf
-    cd ../
+    echo `pwd`
+    ln -s -f /usr/local/redis/bin/* /usr/local/bin
+    utils/install_server.sh
 }
 conf=/etc/redis/6379.conf
-utils/install_server.sh
+install_redis
+
 # cat ->/etc/init.d/$NAME<<NG1
 # #!/bin/sh
 # #Configurations injected by install_server below....
@@ -100,4 +103,3 @@ utils/install_server.sh
 #         ;;
 # esac
 # NG2
-install_redis

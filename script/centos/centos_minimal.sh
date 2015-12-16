@@ -3,7 +3,7 @@
 #setup env
 
 
-set -e -v
+set  -v
 
 . common.sh
 
@@ -84,7 +84,7 @@ initEnv(){
 	sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 fi
 
-cp /etc/yum.conf /etc/yum.conf.lnmp
+/bin/cp -f /etc/yum.conf /etc/yum.conf.lnmp
 sed -i 's:exclude=.*:exclude=:g' /etc/yum.conf
 }
 
@@ -94,18 +94,20 @@ initEnv
 
 
 yum -y install yum-fastestmirror perl-CPAN wget mlocate
-echo -e "set 163 repo mirror...\n"
-[ -e "/etc/yum.repos.d/CentOS-Base.repo" ] && mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo_bk
-[ ! -e "/etc/yum.repos.d/CentOS-Base-163.repo" ] && curl -L "http://mirrors.163.com/.help/CentOS6-Base-163.repo" -o /etc/yum.repos.d/CentOS-Base-163.repo
-yum makecache
-echo -e "finish setting 163 repo mirror...\n"
+echo -e "set yum repo mirror...\n"
+
+. update_source.sh
+# [ -e "/etc/yum.repos.d/CentOS-Base.repo" ] && mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo_bk
+# [ ! -e "/etc/yum.repos.d/CentOS-Base-163.repo" ] && curl -L "http://mirrors.163.com/.help/CentOS6-Base-163.repo" -o /etc/yum.repos.d/CentOS-Base-163.repo
+# yum makecache
+# echo -e "finish setting 163 repo mirror...\n"
 yum -y install screen
 #read -p "install system-config-network-tui,config use text ui,default is y(y/n)(options)" network_tui
 #[ "$devtoolvar" != "n"  -a ! -e "`which system-config-network-tui`" ] &&
 
 
 
-yum -y install system-config-network-tui wget system-config-firewall-tui
+#yum -y install system-config-network-tui wget system-config-firewall-tui
 
 #read -p "install system-config-firewall-tui,config use text ui,default is y(y/n)(options)" firewall_tui
 #[ "$devtoolvar" != "n" -a ! -e "`which system-config-firewall-tui`" ] &&
@@ -117,15 +119,16 @@ yum -y install system-config-network-tui wget system-config-firewall-tui
 yum -y groupinstall "Development tools"
 
 
-inst_pkg $libevent
-yum -y install openssl-devel perl-ExtUtils-Embed zlib-devel scons cmake
+#inst_pkg $libevent
+
+[[ ! -z `rpm -qa|grep openssl-devel` ]] && yum -y install openssl-devel perl-ExtUtils-Embed zlib-devel scons cmake
 if [ -s /etc/selinux/config ]; then
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 fi
 for packages in time gperf telnet libtool-libs  libjpeg libjpeg-devel libpng libpng-devel  gd gd-devel freetype freetype-devel libxml2 libxml2-devel  zlib-devel  glib2-devel  bzip2-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel  libidn libidn-devel openssl openssl-devel vim-minimal nano   ncurses-devel gmp-devel  unzip libcap;
 do yum -y install $packages >/dev/nul 2>&1; done
 
-yum install axel
+yum -y install axel
 
 
 #install google tcmalloc
@@ -196,7 +199,7 @@ yum -y install htop inotify-tools mlocate losf strace screen
 #
 #date -R see timezone
 #
-yum install ntp
+yum -y install ntp
 ntpdate us.pool.ntp.org
 cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 type chkfs
@@ -227,6 +230,17 @@ function nets2 {
    echo "ESTABLISHED:$ret"
    netstat -n | grep -i "$1" | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
 }
-
-fi
 EOF
+fi
+function enCentos7Iptables {
+  systemctl start iptables
+systemctl enable iptables
+
+touch /etc/sysconfig/ip6tables
+systemctl start ip6tables
+systemctl enable ip6table
+}
+
+
+
+enCentos7Iptables
