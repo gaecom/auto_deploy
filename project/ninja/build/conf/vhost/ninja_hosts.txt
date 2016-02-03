@@ -1,0 +1,2 @@
+server_name open.gogoinfo.cn api.gogoinfo.cn *.api.gogoinfo.cn gogoinfo.cn www.gogoinfo.cn wifi.gogoinfo.cn root.gogoinfo.cn biz.gogoinfo.cn admin.gogoinfo.cn lighthouse.gogoinfo.cn  ryres.gogoinfo.cn air.gogoinfo.cn
+;
