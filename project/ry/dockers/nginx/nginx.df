@@ -1,0 +1,11 @@
+FROM nginx:latest
+# Install modules
+
+COPY conf/* /etc/
+
+
+VOLUME ["/data/nginx/data"]
+
+EXPOSE 80 443
+
+CMD ["nginx", "-g", "daemon off;"]

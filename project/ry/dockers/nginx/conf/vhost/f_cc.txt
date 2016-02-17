@@ -1,0 +1,1 @@
+server_name www.fogpod.com api.fogpod.com open.fogpod.com fogpod.com admin.fogpod.com root.fogpod.com d.fogpod.com;

@@ -1,0 +1,1 @@
+server_name biz.gogoinfo.cn www.gogoinfo.cn agent.gogoinfo.cn admin.gogoinfo.cn www.51yemao.com 51yemao.com root.gogoinfo.cn;

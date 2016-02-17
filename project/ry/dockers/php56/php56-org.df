@@ -1,0 +1,8 @@
+FROM php:5.6-fpm
+# Install modules
+COPY script/util.sh /tmp
+COPY pkgs /tmp/pkgs
+COPY conf/* /etc/
+
+RUN  apt-get -y install libssl-dev libcurl4-openssl-dev libsasl2-dev &&  bash /tmp/util.sh  && rm -Rf /tmp/pkgs /tmp/* /var/tmp/* || rm -rf /var/lib/apt/lists/*
+CMD ["php-fpm","-y","/etc/php-fpm.conf","-c","/etc/php.ini"]

@@ -1,0 +1,9 @@
+FROM php:7.0.2-fpm
+# Install modules
+COPY script/util.sh /tmp
+COPY pkgs /tmp/pkgs
+COPY conf/* /etc/
+
+RUN   apt-get update && apt-get -y install libcurl4-gnutls-dev && bash /tmp/util.sh  && rm -Rf /tmp/pkgs /tmp/* /var/tmp/* || rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["php-fpm","-y","/etc/php-fpm.conf","-c","/etc/php7.ini"]

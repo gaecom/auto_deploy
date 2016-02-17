@@ -1,0 +1,10 @@
+FROM mongo:2.6.11
+
+
+COPY entrypoint.sh /entrypoint.sh
+COPY mongo_user.sh /mongo_user.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+EXPOSE 27017
+CMD ["mongod"]
