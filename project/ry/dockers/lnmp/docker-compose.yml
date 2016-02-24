@@ -1,44 +1,48 @@
-mkdir -m 0777 -p /data/{nginx,mongodb,mysql,redis}/{conf,logs,data}
+#  #command: elasticsearch -Des.network.host=0.0.0.0
 
-
-
-docker run -p 6379:6379 --name gg-redis  -v /data/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf -v /data/redis/data:/data -d redis:latest
-
-
-#docker run -p 27017:27017 --name wc-mongodb -v /data/mongodb/log:/data/log -v /data/mongodb/data:/data/db -d mongo:latest --storageEngine wiredTiger --logpath=/data/log/mongo.log
-
-docker run -p 27017:27017 --name gg-mongodb26 -v /data/mongodb/logs:/data/mongodb/logs -v /data/mongodb/data:/data/db -d mongo:2.6.11  --logpath=/data/mongodb/logs/mongo.log
-
-
-docker run -p 9000:9000 --name gg-php56  -d ry:php56
-
-
-docker run -p 80:80 --name gg-nginx -v /data/nginx/conf:/etc/nginx:ro -v /data/nginx:/data/nginx -d ry:nginx1.9
-
-
-
-
+gg-nginx:
+  image: ry:nginx1.9
+  ports:
+    - "80:80"
+    - "443:443"
+  links:
+    - gg-php56:phpfpm
+  volumes:
+    - /data/nginx/conf:/etc/nginx
+    - /data/nginx:/data/nginx
 gg-redis:
   image: redis:latest
-  #command: elasticsearch -Des.network.host=0.0.0.0
   volumes:
     - /data/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+    - /data/redis/data:/data
   ports:
     - "6379:6379"
+
 gg-mongodb26:
-  image: logstash:latest
-  command: logstash -f /etc/logstash/conf.d/logstash.conf
+  image: mongo:2.6.11
   volumes:
-    - /data/logstash/conf:/etc/logstash/conf.d
+    - /data/mongodb/logs:/data/mongodb/logs
+    - /data/mongodb/data:/data/db
   ports:
-    - "5000:5000"
+    - "27017:27017"
+
+gg-php56:
+  image: ry:php56
+  ports:
+    - "9000:9000"
   links:
-    - elasticsearch
-kibana:
-  build: kibana/
+    - gg-mysql:mysql
+    - gg-mongodb26:mongodb
+    - gg-redis:redis
   volumes:
-    - /data/kibana/conf/kibana.yml:/opt/kibana/config/kibana.yml
+    - /data/php/conf/php.ini:/etc/php.ini
+    - /data/nginx/data:/data/nginx/data
+  command: "php-fpm -c /etc/php.ini"
+
+
+gg-mysql:
+  image: mysql:5.7
   ports:
-    - "5601:5601"
-  links:
-    - elasticsearch
+    - "3306:3306"
+  volumes:
+    - /data/mysql/data:/var/lib/mysql
