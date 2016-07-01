@@ -5,9 +5,9 @@
 #iptables -I INPUT -p udp -s 0.0.0.0/0 --dport 53 -j DROP
 
 
-
-iptables -A INPUT -p tcp -m multiport --dport 80,22,1723,443 -j ACCEPT
-iptables -I INPUT -p gre -j ACCEPT
+#1723
+iptables -A INPUT -p tcp -m multiport --dport 80,22,443 -j ACCEPT
+#iptables -I INPUT -p gre -j ACCEPT
 #允许loopback!(不然会导致DNS无法正常关闭等问题,并且网站访问很慢)
 iptables -I INPUT -i lo -p all -j ACCEPT
 iptables -I OUTPUT -j ACCEPT
@@ -29,14 +29,14 @@ iptables -A FORWARD -p TCP ! --syn -m state --state NEW -j DROP
 
 iptables -A INPUT -j DROP
 
+iptables -A INPUT -p tcp --dport 80 -m limit --limit 30/minute --limit-burst 100 -j ACCEPT
 
+iptables -A OUTPUT -p tcp -m tcp -j ACCEPT
 
 #for pptpd
 #
 #prevent dos
-iptables -A INPUT -p tcp --dport 80 -m limit --limit 30/minute --limit-burst 100 -j ACCEPT
 
-iptables -A OUTPUT -p tcp -m tcp -j ACCEPT
 
 # iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 # iptables -I FORWARD  -j ACCEPT

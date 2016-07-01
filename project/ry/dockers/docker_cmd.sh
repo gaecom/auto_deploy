@@ -1,7 +1,7 @@
 #!/bin/bash
 function de2 {
    [ $# -lt 1 ] && echo "$0 1(container id)" && return
-  nsenter --target `docker inspect --format "{{ .State.Pid }}" $cid` --mount --uts --ipc --net --pid 
+  
 }
 ### remove a container
 function drmc2 {
@@ -11,7 +11,8 @@ function drmc2 {
   docker rm $1
 }
 function drmi2 {
-     [ $# -lt 1 ] && echo -e "rm images\n$0 1(container id)" && return
+     
+  [ $# -lt 1 ] && echo -e "rm images\n$0 1(container id)" && return
   image=$1
   containers=`docker ps -a|grep -i $image|awk '{print $1}'|tr '\n' ' '`
   docker rm containers
@@ -26,9 +27,12 @@ function drmac2 {
 
 }
 
+
+
 #docker run container
 function drc2 {
-         [ $# -lt 1 ] && echo -e "run containers\n$0 1(container id)" && return
+         
+  [ $# -lt 1 ] && echo -e "run containers\n$0 1(container id)" && return
   docker start $1
   docker exec -it $1 bash
 }

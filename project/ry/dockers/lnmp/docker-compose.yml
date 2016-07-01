@@ -16,7 +16,8 @@ gg-redis:
     - /data/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
     - /data/redis/data:/data
   ports:
-    - "6379:6379"
+    - "192.168.0.1:6379:6379"
+  #command: "redis-server /usr/local/etc/redis/redis.conf" 
 
 gg-mongodb26:
   image: mongo:2.6.11
@@ -24,12 +25,11 @@ gg-mongodb26:
     - /data/mongodb/logs:/data/mongodb/logs
     - /data/mongodb/data:/data/db
   ports:
-    - "27017:27017"
+    - "192.168.0.1:27017:27017"
 
 gg-php56:
   image: ry:php56
-  ports:
-    - "9000:9000"
+
   links:
     - gg-mysql:mysql
     - gg-mongodb26:mongodb
@@ -42,7 +42,21 @@ gg-php56:
 
 gg-mysql:
   image: mysql:5.7
+  environment:
+    - MYSQL_ROOT_PASSWORD=snowmysql1#iot2012
   ports:
-    - "3306:3306"
+    - "192.168.0.1:3306:3306"
   volumes:
     - /data/mysql/data:/var/lib/mysql
+    - /data/mysql/conf/conf.d:/etc/mysql/conf.d
+
+gg-html2png:
+  image: ry:html2png
+  links:
+    - gg-redis:redis
+  environment:
+    - GG_REDIS_HOST=redis
+  command: "php  /html2png/gogoinfo/server/html2png.php"
+  volumes:
+    - /data/nginx/data:/html2png
+    #- /data/php/conf/html2png.ini:/etc/php.ini

@@ -234,7 +234,7 @@ EOF
 fi
 function enCentos7Iptables {
   systemctl start iptables
-systemctl enable iptables
+  systemctl enable iptables
 
 touch /etc/sysconfig/ip6tables
 systemctl start ip6tables
